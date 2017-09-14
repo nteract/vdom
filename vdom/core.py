@@ -19,6 +19,7 @@ class VDOM():
         return {
                 'application/vdom.v1+json': toJSON(self.obj)
         }
+
 def createElement(tagName):
     class VDOMEl():
         def __init__(self, children=None, **kwargs):
@@ -31,6 +32,10 @@ def createElement(tagName):
     return VDOMEl
 
 
+# This deserves some bonafide metaprogramming
+# We'll just get started for now
 h1 = createElement('h1')
 p = createElement('p')
 div = createElement('div')
+img = createElement('img')
+b = createElement('b')
