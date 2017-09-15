@@ -20,7 +20,7 @@ VDOM(
 
 # Now Incredibly Declarative
 
-Can you believe we wrote this *in Python*?
+Can you believe we wrote this **in Python**?
 
 ![](https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif)
 
