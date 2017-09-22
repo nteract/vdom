@@ -34,26 +34,71 @@ class VDOM():
         }
 
 
-def createElement(tagName):
-    """Take an HTML tag and create an element"""
+def createComponent(tagName):
+    """Create a component for an HTML Tag
 
-    class VDOMEl():
-        """A basic class for a virtual DOM element"""
+    Examples:
+        >>> marquee = createComponent('marquee')
+        >>> marquee('woohoo')
+        <marquee>woohoo</marquee>
+
+    """
+
+    class Component():
+        """A basic class for a virtual DOM Component"""
         def __init__(self, children=None, **kwargs):
             self.children = children
             self.attributes = kwargs
             self.tagName = tagName
 
         def _repr_mimebundle_(self, include, exclude, **kwargs):
-            return VDOM(self)
+            return {
+                'application/vdom.v1+json': toJSON(self)
+            }
 
-    return VDOMEl
+    return Component
+
+def createElement(tagName):
+    """Takes an HTML tag and creates a VDOM Component
+
+    WARNING: This call is deprecated, as the name is the same as React.createElement
+    while having an entirely different meaning.
+
+    This is written more like a helper, similar to https://github.com/ohanhi/hyperscript-helpers
+    allowing you to create code like
+
+    div([
+      p('hey')
+    ])
+
+    Instead of writing
+
+    h('div', [
+        h('p', 'hey')
+    ])
+
+    This should have been written more like React.createClass
+    """
+    print("Warning: createElement is deprecated in favor of createComponent")
+    return createComponent(tagName)
+
+def h(tagName, children=None, attrs=None, **kwargs):
+    """Takes an HTML Tag, children (string, array, or another element), and attributes
+
+    Examples:
+
+      >>> h('div', [h('p', 'hey')])
+      <div><p>hey</p></div>
+
+    """
+    if attrs is None:
+        attrs={}
+    el = createComponent(tagName)
+    return el(children, **attrs, **kwargs)
 
 
-# This deserves some bonafide metaprogramming
-# We'll just get started creating some elements for now
-h1 = createElement('h1')
-p = createElement('p')
-div = createElement('div')
-img = createElement('img')
-b = createElement('b')
+h1 = createComponent('h1')
+p = createComponent('p')
+div = createComponent('div')
+img = createComponent('img')
+b = createComponent('b')
