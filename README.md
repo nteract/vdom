@@ -54,7 +54,7 @@ pip install -e .
 ## We welcome feedback.
 
 Since this project and its API is still a work in progress, we would love to
-hear your thoughts on the API and suggestions for enhancements.
+hear your thoughts on the API and suggestions for enhancements. Please take a look at the [VDOM spec](docs/spec.md) too.
 
 ## Find out more about nteract
 
