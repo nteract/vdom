@@ -8,8 +8,17 @@ vdom.core
 This module provides the core implementation for the VDOM (Virtual DOM).
 
 """
-def toJSON(el):
+
+from jsonschema import validate, Draft4Validator, ValidationError
+
+def toJSON(el, schema=None):
     """Convert an element to JSON"""
+    if schema:
+        try:
+            validate(instance=el, schema=schema, cls=Draft4Validator)
+        except ValidationError as e:
+            raise ValidationError("Your object didn't match the schema: {}. \n {}".format(schema, e))
+
     if(type(el) is str):
         return el
     if(type(el) is list):
