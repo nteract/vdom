@@ -12,28 +12,29 @@ This module provides the core implementation for the VDOM (Virtual DOM).
 from jsonschema import validate, Draft4Validator, ValidationError
 
 def toJSON(el, schema=None):
-    if schema:
-        try:
-            validate(instance=el, schema=schema, cls=Draft4Validator)
-        except ValidationError as e:
-            raise ValidationError("Your object didn't match the schema: {}. \n {}".format(schema, e))
-
-    if(type(el) is str):
-        return el
     """Convert an element to JSON
 
     If you wish to validate the JSON, pass in a schema via the schema keyword argument.
     If a schema is provided, this raises a ValidationError if JSON does not match the schema.
     """
     if(type(el) is list):
-        return list(map(toJSON, el))
-    if(hasattr(el, 'tagName') and hasattr(el, 'attributes')):
-        return {
+        json_el = list(map(toJSON, el))
+    elif(hasattr(el, 'tagName') and hasattr(el, 'attributes')):
+        json_el = {
             'tagName': el.tagName,
             'attributes': el.attributes,
             'children': toJSON(el.children)
         }
-    return el
+    else:
+        json_el = el
+
+    if schema:
+        try:
+            validate(instance=json_el, schema=schema, cls=Draft4Validator)
+        except ValidationError as e:
+            raise ValidationError("Your object didn't match the schema: {}. \n {}".format(schema, e))
+
+    return json_el
 
 
 class VDOM():
