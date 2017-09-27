@@ -111,6 +111,8 @@ def h(tagName, children=None, attrs=None, **kwargs):
     return el(children, **attrs, **kwargs)
 
 
+# These are left for backwards compatibility, from here on out we should
+# define these in helpers
 h1 = createComponent('h1')
 p = createComponent('p')
 div = createComponent('div')
