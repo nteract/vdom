@@ -13,9 +13,10 @@
 Start with Python code and run it:
 
 ```python
-from vdom import VDOM, h1, p, img, div, b
+from IPython.display import display
+from vdom import h1, p, img, div, b
 
-VDOM(
+display(
     div([
         h1('Our Incredibly Declarative Example'),
         p(['Can you believe we wrote this ', b('in Python'), '?']),
