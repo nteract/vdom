@@ -133,7 +133,7 @@ def createElement(tagName):
     print("Warning: createElement is deprecated in favor of createComponent")
     return createComponent(tagName)
 
-def h(tagName, *children, attrs=None, **kwargs):
+def h(tagName, *children, **kwargs):
     """Takes an HTML Tag, children (string, array, or another element), and attributes
 
     Examples:
@@ -142,10 +142,15 @@ def h(tagName, *children, attrs=None, **kwargs):
       <div><p>hey</p></div>
 
     """
-    if attrs is None:
-        attrs={}
+    attrs = {}
+    if 'attrs' in kwargs:
+        attrs = kwargs.pop('attrs')
+        
+    attrs = attrs.copy()
+    attrs.update(kwargs)
+    
     el = createComponent(tagName)
-    return el(children, **attrs, **kwargs)
+    return el(children, **attrs)
 
 
 # These are left for backwards compatibility, from here on out we should
