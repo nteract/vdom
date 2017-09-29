@@ -47,6 +47,36 @@ class VDOM():
                 'application/vdom.v1+json': toJSON(self.obj)
         }
 
+def _flatten_children(*children, **kwargs):
+    '''Flattens *args to allow children to be passed as an array or as
+    positional arguments.
+    
+    >>> _flatten_children("a", "b", "c")
+    ["a", "b", "c"]
+    
+    >>> _flatten_children(["a", "b"])
+    ["a", "b"]
+    
+    >>> _flatten_children(children=["c", "d"])
+    ["c", "d"]
+    
+    >>> _flatten_children()
+    []
+    
+    '''
+    # children as keyword argument takes precedence
+    if('children' in kwargs):
+        children = kwargs['children']
+    elif children is not None and len(children) > 0:
+        if isinstance(children[0], list):
+            # Only one level of flattening, just to match the old API
+            children = children[0]
+        else:
+            children = list(children)
+    else:
+        # Empty list of children
+        children = []
+    return children
 
 def createComponent(tagName):
     """Create a component for an HTML Tag
@@ -60,16 +90,23 @@ def createComponent(tagName):
 
     class Component():
         """A basic class for a virtual DOM Component"""
-        def __init__(self, children=None, **kwargs):
-            self.children = children
+        def __init__(self, *children, **kwargs):
+            self.children = _flatten_children(*children, **kwargs)
             self.attributes = kwargs
             self.tagName = tagName
 
         def _repr_mimebundle_(self, include, exclude, **kwargs):
             return {
-                'application/vdom.v1+json': toJSON(self)
+                'application/vdom.v1+json': toJSON(self),
+                'text/plain': '<{tagName} />'.format(tagName=tagName)
             }
-
+            
+    Component.__doc__ = """A virtual DOM component for a {tagName} tag
+    
+    >>> {tagName}()
+    <{tagName} />
+    """.format(tagName=tagName)
+    
     return Component
 
 def createElement(tagName):
@@ -96,7 +133,7 @@ def createElement(tagName):
     print("Warning: createElement is deprecated in favor of createComponent")
     return createComponent(tagName)
 
-def h(tagName, children=None, attrs=None, **kwargs):
+def h(tagName, *children, **kwargs):
     """Takes an HTML Tag, children (string, array, or another element), and attributes
 
     Examples:
@@ -105,14 +142,19 @@ def h(tagName, children=None, attrs=None, **kwargs):
       <div><p>hey</p></div>
 
     """
-    if attrs is None:
-        attrs={}
+    attrs = {}
+    if 'attrs' in kwargs:
+        attrs = kwargs.pop('attrs')
+        
+    attrs = attrs.copy()
+    attrs.update(kwargs)
+    
     el = createComponent(tagName)
-    return el(children, **attrs, **kwargs)
+    return el(children, **attrs)
 
 
 # These are left for backwards compatibility, from here on out we should
-# define these in helpers
+# define these in vdom.helpers, just like hyperscript-helpers
 h1 = createComponent('h1')
 p = createComponent('p')
 div = createComponent('div')
