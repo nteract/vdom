@@ -14,15 +14,15 @@ Start with Python code and run it:
 
 ```python
 from IPython.display import display
-from vdom import h1, p, img, div, b
+from vdom.helpers import h1, p, img, div, b
 
 display(
-    div([
+    div(
         h1('Our Incredibly Declarative Example'),
-        p(['Can you believe we wrote this ', b('in Python'), '?']),
+        p('Can you believe we wrote this ', b('in Python'), '?'),
         img(src="https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif"),
-        p(['What will ', b('you'), ' create next?']),
-    ])
+        p('What will ', b('you'), ' create next?'),
+    )
 )
 ```
 
