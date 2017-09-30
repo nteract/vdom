@@ -17,9 +17,11 @@ def toJSON(el, schema=None):
     If you wish to validate the JSON, pass in a schema via the schema keyword argument.
     If a schema is provided, this raises a ValidationError if JSON does not match the schema.
     """
+    if(type(el) is str):
+        return el
     if(type(el) is list):
-        json_el = list(map(toJSON, el))
-    if(type(el) is dict):
+        return list(map(toJSON, el))
+    elif(type(el) is dict):
         assert 'tagName' in el
         json_el = el.copy()
         if 'attributes' not in el:
@@ -45,7 +47,20 @@ def toJSON(el, schema=None):
 
 
 class VDOM():
-    """A basic virtual DOM class"""
+    """A basic virtual DOM class which allows you to write literal VDOM spec
+    
+    >>> VDOM({ 'tagName': 'h1', 'children': 'Hey', 'attributes': {}})
+    
+    It's probably better to use `vdom.h` or the helper functions:
+    
+    >>> from vdom import h
+    >>> h('h1', 'Hey')
+    <h1 />
+    
+    >>> from vdom.helpers import h1
+    >>> h1('Hey')
+    
+    """
     def __init__(self, obj):
         self.obj = obj
 

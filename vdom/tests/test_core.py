@@ -35,11 +35,11 @@ def test_flatten_children():
 def test_toJSON():
     assert toJSON({
         'tagName': 'h1',
-        'attributes': {},
+        'attributes': { 'data-test': True },
         'children': []
     }) == {
         'tagName': 'h1',
-        'attributes': {},
+        'attributes': { 'data-test': True},
         'children': []
     }
 
