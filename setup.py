@@ -27,5 +27,6 @@ setup(name='vdom',
       packages=['vdom'],
       install_requires=[
           ipython_req,
+          'jsonschema'
       ],
      )
