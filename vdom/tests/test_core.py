@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import _flatten_children
+from ..core import _flatten_children, toJSON
+
 
 def test_flatten_children():
     # when the first argument is an array, interpret it as the primary argument
@@ -28,3 +29,14 @@ def test_flatten_children():
     # null element for a VDOMEl (this is ok)
     assert _flatten_children(None) == [None]
     assert _flatten_children(None, 1, None) == [None, 1, None]
+
+
+def test_toJSON():
+    assert toJSON({
+        'tagName': 'h1',
+        'attributes': {}
+    }) == {
+        'tagName': 'h1',
+        'attributes': {},
+        'children': []
+    }

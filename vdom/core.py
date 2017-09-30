@@ -19,6 +19,13 @@ def toJSON(el, schema=None):
     """
     if(type(el) is list):
         json_el = list(map(toJSON, el))
+    if(type(el) is dict):
+        assert 'tagName' in el
+        json_el = el.copy()
+        if 'attributes' not in el:
+            json_el['attributes'] = {}
+        if 'children' not in el:
+            json_el['children'] = []
     elif(hasattr(el, 'tagName') and hasattr(el, 'attributes')):
         json_el = {
             'tagName': el.tagName,
