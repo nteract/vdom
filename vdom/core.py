@@ -74,8 +74,13 @@ def _flatten_children(*children, **kwargs):
     # children as keyword argument takes precedence
     if('children' in kwargs):
         children = kwargs['children']
-    elif children is not None and len(children) > 0:
-        if isinstance(children[0], list):
+    elif children is not None:
+        if len(children) == 0:
+            children = None
+        elif len(children) == 1:
+            # Flatten by default
+            children = children[0]
+        elif isinstance(children[0], list):
             # Only one level of flattening, just to match the old API
             children = children[0]
         else:
