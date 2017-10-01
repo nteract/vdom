@@ -3,7 +3,7 @@
 ## Why use VDOM?
 
 - Write **Declarative** Pythonic layouts.
-- Render the layout in Jupyter and nteract frontends.
+- Render the layout in Jupyter frontends.
 - Serialize layout for rehydration in your web app.
 
 :warning: This library is a work in progress. :warning:
