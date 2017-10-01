@@ -4,11 +4,13 @@ The main operating principle for `vdom` (virtual DOM) is:
 
 > Write functions that return `vdom` elements
 
-In matching with `React` parlance, we'll call these functions components. This allows you to share, remix, and use components amongst everyone. You'll be able to compose together components to create greater components than you have before.
+In matching with `React` parlance, we'll call these functions **components**. This allows you
+to share, remix, and use components amongst everyone. You'll be able to compose together
+components to create greater components than you have before.
 
 ## Introductory component
 
-We'll start with a component that takes a level of happiness and produces a light visualization:
+We'll start with a **component** that takes a level of happiness and produces a light visualization:
 
 ```python
 from vdom.helpers import div, span, p, meter
@@ -46,7 +48,8 @@ happiness(96)
 
 ------------
 
-:tada: Our first component is ready! Since we can think of `happiness` as a little building block component, we can put several of these together to create whole layouts:
+:tada: Our first component is ready! Since we can think of `happiness` as a little building block component,
+we can put several of these together to create whole layouts:
 
 ```python
 div(
@@ -87,7 +90,8 @@ div(
 
 ## Working with Python objects
 
-For this section, you'll need `ggplot` and `matplotlib` packages installed. We'll create a component, `fancy_hist` that creates a histogram which allows for displaying side by side
+For this section, you'll need `ggplot` and `matplotlib` packages installed. We'll create a component,
+`fancy_hist`, that creates a histogram which allows for displaying side by side:
 
 ```python
 import matplotlib.pyplot as plt
