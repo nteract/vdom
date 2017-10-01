@@ -1,15 +1,14 @@
 # Design Patterns
 
-The main operating principle for `vdom` is:
+The main operating principle for `vdom` (virtual DOM) is:
 
 > Write functions that return `vdom` elements
 
-In matching with `React` parlance, we'll call these functions components. This allows you to share, remix, and use components amongst everyone. You'll be able to compose together components to create greater layouts than you have
-before.
+In matching with `React` parlance, we'll call these functions components. This allows you to share, remix, and use components amongst everyone. You'll be able to compose together components to create greater components than you have before.
 
 ## Introductory component
 
-We'll start with a component that takes a level of happiness that produces a light visualization:
+We'll start with a component that takes a level of happiness and produces a light visualization:
 
 ```python
 from vdom.helpers import div, span, p, meter
@@ -32,7 +31,7 @@ def happiness(level=90):
   )
 ```
 
-The user of the component only has to know how to call `happiness` with their level of happiness:
+The user of the component only needs to call it with a level of happiness from 0 to 100.
 
 ```python
 happiness(96)
@@ -47,7 +46,7 @@ happiness(96)
 
 ------------
 
-:tada: Our first component is ready! Since we can think of these as little building block components, we can put several of these together to create whole layouts:
+:tada: Our first component is ready! Since we can think of `happiness` as a little building block component, we can put several of these together to create whole layouts:
 
 ```python
 div(
@@ -86,10 +85,9 @@ div(
 -------------------
 
 
-## Working with python objects
+## Working with Python objects
 
-For this section, you'll need `ggplot` and `matplotlib`. We'll create a component
-that creates a histogram which allows for displaying side by side
+For this section, you'll need `ggplot` and `matplotlib` packages installed. We'll create a component, `fancy_hist` that creates a histogram which allows for displaying side by side
 
 ```python
 import matplotlib.pyplot as plt
