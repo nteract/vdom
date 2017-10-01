@@ -27,7 +27,7 @@ The top level object is a `VDOMElement`, defined in JavaScript as:
 
 ### `VDOMNode`
 
-A `VDOMNode` may be a `VDOMEl`, a `string` or an `Array<VDOMNode>`.
+A `VDOMNode` may be a `VDOMEl`, a `string` an `Array<VDOMNode>`, or `null`.
 
 ### `tagName`
 
@@ -37,7 +37,8 @@ to other new elements.
 
 ### `children`
 
-Any of these: `VDOMEl`, `string`, or an `Array<VDOMNode>`.
+`children` can be a `VDOMNode`, which is a `VDOMEl`, a `string` an
+`Array<VDOMNode>`, or `null`
 
 ### `attributes`
 
