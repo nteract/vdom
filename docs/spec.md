@@ -44,6 +44,12 @@ to other new elements.
 
 The literal attributes to passthrough to the element.
 
+#### `style`
+
+The `style` attribute is expected to be an object with `camelCased` properties, matching with the
+[DOM API for CSS in JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents#Manipulating_styles).
+
+
 ## An example
 
 A `VDOMElement` represented in JSON:
@@ -64,12 +70,8 @@ becomes the following HTML:
 <a href="https://nteract.io">nteract site</a>
 ```
 
-## `style`
-
-`style` is expected to be an object with `camelCased` properties, matching with the
-[DOM API for CSS in JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents#Manipulating_styles).
 
 ### Coding style and syntax
 
-All [DOM properties and attributes should be camelCased](https://facebook.github.io/react/docs/dom-elements.html#all-supported-html-attributes). 
+All [DOM properties and attributes should be camelCased](https://facebook.github.io/react/docs/dom-elements.html#all-supported-html-attributes).
 This may [no longer be a restriction in the future](https://facebook.github.io/react/blog/2017/09/08/dom-attributes-in-react-16.html) however.
