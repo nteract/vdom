@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 vdom.helpers
 ~~~~~~~~~
@@ -15,94 +14,92 @@ div(
 
 """
 
-from .core import createComponent
+from .core import create_component
 
 # From https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 
-## Content sectioning
-address = createComponent('address')
-article = createComponent('article')
-aside = createComponent('aside')
-footer = createComponent('footer')
-h1 = createComponent('h1')
-h2 = createComponent('h2')
-h3 = createComponent('h3')
-h4 = createComponent('h4')
-h5 = createComponent('h5')
-h6 = createComponent('h6')
-header = createComponent('header')
-hgroup = createComponent('hgroup')
-nav = createComponent('nav')
-section = createComponent('section')
+# Content sectioning
+address = create_component('address')
+article = create_component('article')
+aside = create_component('aside')
+footer = create_component('footer')
+h1 = create_component('h1')
+h2 = create_component('h2')
+h3 = create_component('h3')
+h4 = create_component('h4')
+h5 = create_component('h5')
+h6 = create_component('h6')
+header = create_component('header')
+hgroup = create_component('hgroup')
+nav = create_component('nav')
+section = create_component('section')
 
-## Text content
-blockquote = createComponent('blockquote')
-dd = createComponent('dd')
-div = createComponent('div')
-dl = createComponent('dl')
-dt = createComponent('dt')
-figcaption = createComponent('figcaption')
-figure = createComponent('figure')
-hr = createComponent('hr')
-li = createComponent('li')
-ol = createComponent('ol')
-p = createComponent('p')
-pre = createComponent('pre')
-ul = createComponent('ul')
+# Text content
+blockquote = create_component('blockquote')
+dd = create_component('dd')
+div = create_component('div')
+dl = create_component('dl')
+dt = create_component('dt')
+figcaption = create_component('figcaption')
+figure = create_component('figure')
+hr = create_component('hr')
+li = create_component('li')
+ol = create_component('ol')
+p = create_component('p')
+pre = create_component('pre')
+ul = create_component('ul')
 
-## Inline text semantics
-a = createComponent('a')
-abbr = createComponent('abbr')
-b = createComponent('b')
-br = createComponent('br')
-cite = createComponent('cite')
-code = createComponent('code')
-data = createComponent('data')
-em = createComponent('em')
-i = createComponent('i')
-kbd = createComponent('kbd')
-mark = createComponent('mark')
-q = createComponent('q')
-s = createComponent('s')
-samp = createComponent('samp')
-small = createComponent('small')
-span = createComponent('span')
-strong = createComponent('strong')
-sub = createComponent('sub')
-sup = createComponent('sup')
-time = createComponent('time')
-u = createComponent('u')
-var = createComponent('var')
+# Inline text semantics
+a = create_component('a')
+abbr = create_component('abbr')
+b = create_component('b')
+br = create_component('br')
+cite = create_component('cite')
+code = create_component('code')
+data = create_component('data')
+em = create_component('em')
+i = create_component('i')
+kbd = create_component('kbd')
+mark = create_component('mark')
+q = create_component('q')
+s = create_component('s')
+samp = create_component('samp')
+small = create_component('small')
+span = create_component('span')
+strong = create_component('strong')
+sub = create_component('sub')
+sup = create_component('sup')
+time = create_component('time')
+u = create_component('u')
+var = create_component('var')
 
-## Image and video
-img = createComponent('img')
-audio = createComponent('audio')
-video = createComponent('video')
-source = createComponent('source')
+# Image and video
+img = create_component('img')
+audio = create_component('audio')
+video = create_component('video')
+source = create_component('source')
 
-## Table content
-caption = createComponent('caption')
-col = createComponent('col')
-colgroup = createComponent('colgroup')
-table = createComponent('table')
-tbody = createComponent('tbody')
-td = createComponent('td')
-tfoot = createComponent('tfoot')
-th = createComponent('th')
-thead = createComponent('thead')
-tr = createComponent('tr')
+# Table content
+caption = create_component('caption')
+col = create_component('col')
+colgroup = create_component('colgroup')
+table = create_component('table')
+tbody = create_component('tbody')
+td = create_component('td')
+tfoot = create_component('tfoot')
+th = create_component('th')
+thead = create_component('thead')
+tr = create_component('tr')
 
-## Forms (only read only aspects)
-meter = createComponent('meter')
-output = createComponent('output')
-progress = createComponent('progress')
-input_ = createComponent('input')
+# Forms (only read only aspects)
+meter = create_component('meter')
+output = create_component('output')
+progress = create_component('progress')
+input_ = create_component('input')
 
-## Interactive elements
-details = createComponent('details')
-dialog = createComponent('dialog')
-menu = createComponent('menu')
-menuitem = createComponent('menuitem')
-summary = createComponent('summary')
-
-
+# Interactive elements
+details = create_component('details')
+dialog = create_component('dialog')
+menu = create_component('menu')
+menuitem = create_component('menuitem')
+summary = create_component('summary')

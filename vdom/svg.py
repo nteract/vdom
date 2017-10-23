@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
 vdom.svg
 ~~~~~~~~
@@ -16,132 +15,132 @@ svg(
 
 """
 
-from .core import createComponent
+from .core import create_component
 
 # From https://developer.mozilla.org/en-US/docs/Web/SVG/Element
 
-## Animation elements
-animate = createComponent('animate')
-animateColor = createComponent('animateColor')
-animateMotion = createComponent('animateMotion')
-animateTransform = createComponent('animateTransform')
-discard = createComponent('discard')
-mpath = createComponent('mpath')
-set_ = createComponent('set')
+# Animation elements
+animate = create_component('animate')
+animateColor = create_component('animateColor')
+animateMotion = create_component('animateMotion')
+animateTransform = create_component('animateTransform')
+discard = create_component('discard')
+mpath = create_component('mpath')
+set_ = create_component('set')
 
-## Basic shapes
-circle = createComponent('circle')
-ellipse = createComponent('ellipse')
-line = createComponent('line')
-polygon = createComponent('polygon')
-polyline = createComponent('polyline')
-rect = createComponent('rect')
+# Basic shapes
+circle = create_component('circle')
+ellipse = create_component('ellipse')
+line = create_component('line')
+polygon = create_component('polygon')
+polyline = create_component('polyline')
+rect = create_component('rect')
 
-## Container elements
-a = createComponent('a')
-defs = createComponent('defs')
-g = createComponent('g')
-marker = createComponent('marker')
-mask = createComponent('mask')
-missing_glyph = createComponent('missing-glyph')
-pattern = createComponent('pattern')
-svg = createComponent('svg')
-switch = createComponent('switch')
-symbol = createComponent('symbol')
-unknown = createComponent('unknown')
+# Container elements
+a = create_component('a')
+defs = create_component('defs')
+g = create_component('g')
+marker = create_component('marker')
+mask = create_component('mask')
+missing_glyph = create_component('missing-glyph')
+pattern = create_component('pattern')
+svg = create_component('svg')
+switch = create_component('switch')
+symbol = create_component('symbol')
+unknown = create_component('unknown')
 
-## Descriptive elements
-desc = createComponent('desc')
-metadata = createComponent('metadata')
-title = createComponent('title')
+# Descriptive elements
+desc = create_component('desc')
+metadata = create_component('metadata')
+title = create_component('title')
 
-## Filter primitive elements
-feBlend = createComponent('feBlend')
-feColorMatrix = createComponent('feColorMatrix')
-feComponentTransfer = createComponent('feComponentTransfer')
-feComposite = createComponent('feComposite')
-feConvolveMatrix = createComponent('feConvolveMatrix')
-feDiffuseLighting = createComponent('feDiffuseLighting')
-feDisplacementMap = createComponent('feDisplacementMap')
-feDropShadow = createComponent('feDropShadow')
-feFlood = createComponent('feFlood')
-feFuncA = createComponent('feFuncA')
-feFuncB = createComponent('feFuncB')
-feFuncG = createComponent('feFuncG')
-feFuncR = createComponent('feFuncR')
-feGaussianBlur = createComponent('feGaussianBlur')
-feImage = createComponent('feImage')
-feMerge = createComponent('feMerge')
-feMergeNode = createComponent('feMergeNode')
-feMorphology = createComponent('feMorphology')
-feOffset = createComponent('feOffset')
-feSpecularLighting = createComponent('feSpecularLighting')
-feTile = createComponent('feTile')
-feTurbulence = createComponent('feTurbulence')
+# Filter primitive elements
+feBlend = create_component('feBlend')
+feColorMatrix = create_component('feColorMatrix')
+feComponentTransfer = create_component('feComponentTransfer')
+feComposite = create_component('feComposite')
+feConvolveMatrix = create_component('feConvolveMatrix')
+feDiffuseLighting = create_component('feDiffuseLighting')
+feDisplacementMap = create_component('feDisplacementMap')
+feDropShadow = create_component('feDropShadow')
+feFlood = create_component('feFlood')
+feFuncA = create_component('feFuncA')
+feFuncB = create_component('feFuncB')
+feFuncG = create_component('feFuncG')
+feFuncR = create_component('feFuncR')
+feGaussianBlur = create_component('feGaussianBlur')
+feImage = create_component('feImage')
+feMerge = create_component('feMerge')
+feMergeNode = create_component('feMergeNode')
+feMorphology = create_component('feMorphology')
+feOffset = create_component('feOffset')
+feSpecularLighting = create_component('feSpecularLighting')
+feTile = create_component('feTile')
+feTurbulence = create_component('feTurbulence')
 
-## Font elements
-font = createComponent('font')
-font_face = createComponent('font-face')
-font_face_format = createComponent('font-face-format')
-font_face_name = createComponent('font-face-name')
-font_face_src = createComponent('font-face-src')
-font_face_uri = createComponent('font-face-uri')
-hkern = createComponent('hkern')
-vkern = createComponent('vkern')
+# Font elements
+font = create_component('font')
+font_face = create_component('font-face')
+font_face_format = create_component('font-face-format')
+font_face_name = create_component('font-face-name')
+font_face_src = create_component('font-face-src')
+font_face_uri = create_component('font-face-uri')
+hkern = create_component('hkern')
+vkern = create_component('vkern')
 
-## Gradient elements
-linearGradient = createComponent('linearGradient')
-meshgradient = createComponent('meshgradient')
-radialGradient = createComponent('radialGradient')
-stop = createComponent('stop')
+# Gradient elements
+linearGradient = create_component('linearGradient')
+meshgradient = create_component('meshgradient')
+radialGradient = create_component('radialGradient')
+stop = create_component('stop')
 
-## Graphics elements
-image = createComponent('image')
-mesh = createComponent('mesh')
-path = createComponent('path')
-text = createComponent('text')
-use = createComponent('use')
+# Graphics elements
+image = create_component('image')
+mesh = create_component('mesh')
+path = create_component('path')
+text = create_component('text')
+use = create_component('use')
 
-## Graphics referencing elements
-audio = createComponent('audio')
-iframe = createComponent('iframe')
-video = createComponent('video')
+# Graphics referencing elements
+audio = create_component('audio')
+iframe = create_component('iframe')
+video = create_component('video')
 
-## HTML elements
-canvas = createComponent('canvas')
+# HTML elements
+canvas = create_component('canvas')
 
-## Light source elements
-feDistantLight = createComponent('feDistantLight')
-fePointLight = createComponent('fePointLight')
-feSpotLight = createComponent('feSpotLight')
+# Light source elements
+feDistantLight = create_component('feDistantLight')
+fePointLight = create_component('fePointLight')
+feSpotLight = create_component('feSpotLight')
 
-## Never-rendered elements
-clipPath = createComponent('clipPath')
-hatch = createComponent('hatch')
-script = createComponent('script')
-style = createComponent('style')
+# Never-rendered elements
+clipPath = create_component('clipPath')
+hatch = create_component('hatch')
+script = create_component('script')
+style = create_component('style')
 
-## Paint server elements
-solidcolor = createComponent('solidcolor')
+# Paint server elements
+solidcolor = create_component('solidcolor')
 
-## Renderable elements
-foreignObject = createComponent('foreignObject')
-textPath = createComponent('textPath')
-tspan = createComponent('tspan')
+# Renderable elements
+foreignObject = create_component('foreignObject')
+textPath = create_component('textPath')
+tspan = create_component('tspan')
 
-## Text content elements
-altGlyph = createComponent('altGlyph')
-altGlyphDef = createComponent('altGlyphDef')
-altGlyphItem = createComponent('altGlyphItem')
-glyph = createComponent('glyph')
-glyphRef = createComponent('glyphRef')
-tref = createComponent('tref')
+# Text content elements
+altGlyph = create_component('altGlyph')
+altGlyphDef = create_component('altGlyphDef')
+altGlyphItem = create_component('altGlyphItem')
+glyph = create_component('glyph')
+glyphRef = create_component('glyphRef')
+tref = create_component('tref')
 
-## Uncategorized elements
-color_profile = createComponent('color-profile')
-cursor = createComponent('cursor')
-filter_ = createComponent('filter')
-hatchpath = createComponent('hatchpath')
-meshpatch = createComponent('meshpatch')
-meshrow = createComponent('meshrow')
-view = createComponent('view')
+# Uncategorized elements
+color_profile = create_component('color-profile')
+cursor = create_component('cursor')
+filter_ = create_component('filter')
+hatchpath = create_component('hatchpath')
+meshpatch = create_component('meshpatch')
+meshrow = create_component('meshrow')
+view = create_component('view')
