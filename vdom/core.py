@@ -8,7 +8,14 @@ that are renderable in jupyter frontends.
 """
 
 from jsonschema import validate, Draft4Validator, ValidationError
+import json
 
+import os
+import io
+
+_vdom_schema_file_path = os.path.join("schemas","vdom_schema_v0.json")
+with io.open(_vdom_schema_file_path,"r") as f:
+    VDOM_SCHEMA = json.load(f)
 
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
@@ -20,7 +27,7 @@ def to_json(el, schema=None):
     if (type(el) is str):
         return el
     if (type(el) is list):
-        return list(map(toJSON, el))
+        return list(map(to_json, el))
     elif (type(el) is dict):
         assert 'tagName' in el
         json_el = el.copy()
@@ -32,7 +39,7 @@ def to_json(el, schema=None):
         json_el = {
             'tagName': el.tagName,
             'attributes': el.attributes,
-            'children': toJSON(el.children)
+            'children': to_json(el.children)
         }
     else:
         json_el = el
@@ -68,7 +75,9 @@ class VDOM():
         self.obj = obj
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
-        return {'application/vdom.v1+json': toJSON(self.obj)}
+        return {
+            'application/vdom.v1+json': to_json(self.obj, schema=VDOM_SCHEMA)
+            }
 
 
 def _flatten_children(*children, **kwargs):
@@ -128,7 +137,7 @@ def create_component(tagName):
 
         def _repr_mimebundle_(self, include, exclude, **kwargs):
             return {
-                'application/vdom.v1+json': toJSON(self),
+                'application/vdom.v1+json': to_json(self, schema=VDOM_SCHEMA),
                 'text/plain': '<{tagName} />'.format(tagName=tagName)
             }
 
