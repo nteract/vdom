@@ -73,11 +73,21 @@ class VDOM():
 
     def __init__(self, obj):
         self.obj = obj
+        self._schema = VDOM_SCHEMA
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
         return {
-            'application/vdom.v1+json': to_json(self.obj, schema=VDOM_SCHEMA)
+            'application/vdom.v1+json': to_json(self.obj, schema=self._schema)
             }
+
+    @property
+    def schema(self):
+        return self._schema
+
+    @schema.setter
+    def schema(self, value):
+        Draft4Validator.check_schema(value)
+        self._schema = value
 
 
 def _flatten_children(*children, **kwargs):
@@ -134,12 +144,22 @@ def create_component(tagName):
             self.children = _flatten_children(*children, **kwargs)
             self.attributes = kwargs
             self.tagName = tagName
+            self._schema = VDOM_SCHEMA
 
         def _repr_mimebundle_(self, include, exclude, **kwargs):
             return {
-                'application/vdom.v1+json': to_json(self, schema=VDOM_SCHEMA),
+                'application/vdom.v1+json': to_json(self, schema=self._schema),
                 'text/plain': '<{tagName} />'.format(tagName=tagName)
             }
+
+        @property
+        def schema(self):
+            return self._schema
+
+        @schema.setter
+        def schema(self, value):
+            Draft4Validator.check_schema(value)
+            self._schema = value
 
     Component.__doc__ = """A virtual DOM component for a {tagName} tag
 
