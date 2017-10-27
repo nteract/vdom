@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import _flatten_children, toJSON
+from ..core import _flatten_children, to_json, VDOM
 from ..helpers import div, p, img, h1, b
+from jsonschema import ValidationError, validate
+import pytest
 
 
 def test_flatten_children():
@@ -32,8 +34,8 @@ def test_flatten_children():
     assert _flatten_children(None, 1, None) == [None, 1, None]
 
 
-def test_toJSON():
-    assert toJSON({
+def test_to_json():
+    assert to_json({
         'tagName': 'h1',
         'attributes': { 'data-test': True },
         'children': []
@@ -43,7 +45,7 @@ def test_toJSON():
         'children': []
     }
 
-    assert toJSON(div(h1('Our Incredibly Declarative Example'))) == {
+    assert to_json(div(h1('Our Incredibly Declarative Example'))) == {
         'tagName': 'div',
         'children': {
             'tagName': 'h1',
@@ -53,7 +55,7 @@ def test_toJSON():
         'attributes': {}
     }
 
-    assert toJSON(
+    assert to_json(
         div(
             h1('Our Incredibly Declarative Example'),
             p('Can you believe we wrote this ', b('in Python'), '?'),
@@ -87,3 +89,16 @@ def test_toJSON():
         }],
         'attributes': {}
     }
+
+_valid_vdom_obj= {'tagName': 'h1', 'children': 'Hey', 'attributes': {}}
+
+def test_schema_validation():
+    with pytest.raises(ValidationError):
+        test_vdom = VDOM(
+            [_valid_vdom_obj],
+        )
+
+    # make sure you can pass empty schema
+    assert (
+        VDOM([_valid_vdom_obj], schema = {}).json_contents == [_valid_vdom_obj]
+        )

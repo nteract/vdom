@@ -25,9 +25,9 @@ def to_json(el, schema=None):
     does not match the schema.
     """
     if (type(el) is str):
-        return el
-    if (type(el) is list):
-        return list(map(to_json, el))
+        json_el = el
+    elif (type(el) is list):
+        json_el = list(map(to_json, el))
     elif (type(el) is dict):
         assert 'tagName' in el
         json_el = el.copy()
@@ -70,15 +70,30 @@ class VDOM():
     >>> h1('Hey')
 
     """
+    _schema = VDOM_SCHEMA
 
-    def __init__(self, obj):
+    def __init__(self, obj, schema = None):
+        # we need to assign self.schema first,
+        # because it is used to validate the object
+        if schema is not None:
+            self.schema = schema
         self.obj = obj
-        self._schema = VDOM_SCHEMA
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
-        return {
-            'application/vdom.v1+json': to_json(self.obj, schema=self._schema)
-            }
+        return { 'application/vdom.v1+json': self.json_contents }
+
+    @property
+    def json_contents(self):
+        return to_json(self._obj, schema=self._schema)
+
+    @property
+    def obj(self):
+        return self._obj
+
+    @obj.setter
+    def obj(self, value):
+        if to_json(value, schema=self._schema) is not None:
+            self._obj = value
 
     @property
     def schema(self):
@@ -88,6 +103,10 @@ class VDOM():
     def schema(self, value):
         Draft4Validator.check_schema(value)
         self._schema = value
+
+    @staticmethod
+    def validate(value, schema=_schema):
+        to_json(value, schema=schema)
 
 
 def _flatten_children(*children, **kwargs):
