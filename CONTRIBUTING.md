@@ -38,20 +38,21 @@ would like to address.
 2. Fork the repository associated with the issue to your local GitHub organization.
 3. Clone the repository to your local machine using `git clone
 https://github.com/github-username/repository-name.git`.
-4. Create a new branch for your fix using `git checkout -b branch-name-here`.
-5. Make the appropriate changes for the issue you are trying to address or the
+4. Install the project editably with all the dependencies `pip install -e .[all]`
+5. Create a new branch for your fix using `git checkout -b branch-name-here`.
+6. Make the appropriate changes for the issue you are trying to address or the
 feature that you want to add.
-6. Confirm that unit tests pass successfully with `py.test`. If tests fail, don't hesitate to ask for help.
-7. Add and commit the changed files using `git add` and `git commit`.
-8. Push the changes to the remote repository using `git push origin
+7. Confirm that unit tests pass successfully with `py.test`. If tests fail, don't hesitate to ask for help.
+8. Add and commit the changed files using `git add` and `git commit`.
+9. Push the changes to the remote repository using `git push origin
 branch-name-here`.
-9. Submit a pull request to the upstream repository.
-10. Title the pull request per the requirements outlined in the section below.
-11. Set the description of the pull request with a brief description of what you
+10. Submit a pull request to the upstream repository.
+11. Title the pull request per the requirements outlined in the section below.
+12. Set the description of the pull request with a brief description of what you
 did and any questions you might have about what you did.
-12. Wait for the pull request to be reviewed by a maintainer.
-13. Make changes to the pull request if the reviewing maintainer recommends them.
-14. Celebrate your success after your pull request is merged! :tada:
+13. Wait for the pull request to be reviewed by a maintainer.
+14. Make changes to the pull request if the reviewing maintainer recommends them.
+15. Celebrate your success after your pull request is merged! :tada:
 
 ## How should I write my commit messages and PR titles?
 

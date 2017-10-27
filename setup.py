@@ -14,6 +14,14 @@ import sys
 if sys.version_info[0] < 3 and 'bdist_wheel' not in sys.argv:
     ipython_req = 'ipython<6'
 
+extras_require = {
+    "tests": ["pytest"]
+}
+
+extras_require['all']= list(
+    set([val for k, v in extras_require.items() for val in v])
+    )
+
 setup(name='vdom',
       version=versioneer.get_version(),
       cmdclass=versioneer.get_cmdclass(),
@@ -29,4 +37,5 @@ setup(name='vdom',
           ipython_req,
           'jsonschema'
       ],
+      extras_require=extras_require
      )
