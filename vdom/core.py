@@ -16,6 +16,8 @@ import io
 _vdom_schema_file_path = os.path.join("schemas","vdom_schema_v0.json")
 with io.open(_vdom_schema_file_path,"r") as f:
     VDOM_SCHEMA = json.load(f)
+_validate_err_template = "Your object didn't match the schema: {}. \n {}"
+
 
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
@@ -48,9 +50,7 @@ def to_json(el, schema=None):
         try:
             validate(instance=json_el, schema=schema, cls=Draft4Validator)
         except ValidationError as e:
-            raise ValidationError(
-                "Your object didn't match the schema: {}. \n {}".format(
-                    schema, e))
+            raise ValidationError(_validate_err_template.format(schema, e))
 
     return json_el
 
@@ -103,6 +103,14 @@ class VDOM(object):
     @schema.setter
     def schema(self, value):
         Draft4Validator.check_schema(value)
+        # if object is present, check if schema works, if not give a log
+        if self._obj:
+            try:
+                to_json(self._obj, schema=value)
+            except ValidationError as e:
+                # Don't raise error, but give warning that it is no longer valid
+                print(validate_err_template.format(value, e))
+                print("VDOM cannot submit a message until this is fixed")
         self._schema = value
 
     @staticmethod
