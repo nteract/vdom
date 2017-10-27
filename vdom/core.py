@@ -55,7 +55,7 @@ def to_json(el, schema=None):
     return json_el
 
 
-class VDOM():
+class VDOM(object):
     """A basic virtual DOM class which allows you to write literal VDOM spec
 
     >>> VDOM({ 'tagName': 'h1', 'children': 'Hey', 'attributes': {}})
@@ -71,6 +71,7 @@ class VDOM():
 
     """
     _schema = VDOM_SCHEMA
+    _obj = None
 
     def __init__(self, obj, schema = None):
         # we need to assign self.schema first,
