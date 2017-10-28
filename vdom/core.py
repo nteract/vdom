@@ -13,8 +13,9 @@ import json
 import os
 import io
 
-_vdom_schema_file_path = os.path.join("schemas","vdom_schema_v0.json")
-with io.open(_vdom_schema_file_path,"r") as f:
+_vdom_schema_file_path = os.path.join(
+    os.path.dirname(__file__), "schemas", "vdom_schema_v0.json")
+with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
@@ -73,7 +74,7 @@ class VDOM(object):
     _schema = VDOM_SCHEMA
     _obj = None
 
-    def __init__(self, obj, schema = None):
+    def __init__(self, obj, schema=None):
         # we need to assign self.schema first,
         # because it is used to validate the object
         if schema is not None:
@@ -81,7 +82,7 @@ class VDOM(object):
         self.obj = obj
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
-        return { 'application/vdom.v1+json': self.json_contents }
+        return {'application/vdom.v1+json': self.json_contents}
 
     @property
     def json_contents(self):
