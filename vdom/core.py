@@ -110,7 +110,7 @@ class VDOM(object):
                 to_json(self._obj, schema=value)
             except ValidationError as e:
                 # Don't raise error, but give warning that it is no longer valid
-                print(validate_err_template.format(value, e))
+                print(_validate_err_template.format(value, e))
                 print("VDOM cannot submit a message until this is fixed")
         self._schema = value
 
