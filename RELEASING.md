@@ -47,6 +47,8 @@ and ship it:
 twine upload dist/vdom-0.5*
 ```
 
+Our package makes use of [versioneer](https://github.com/warner/python-versioneer) under the hood with our tags to track the version number of the package whether we are shipped or in development mode. Super handy right?
+
 
 ## Summary
 
