@@ -140,6 +140,7 @@ def _flatten_children(*children, **kwargs):
     if ('children' in kwargs):
         children = kwargs['children']
     elif children is not None:
+        # If children array is empty, might as well pass None (null in JSON)
         if len(children) == 0:
             children = None
         elif len(children) == 1:
@@ -148,7 +149,11 @@ def _flatten_children(*children, **kwargs):
         elif isinstance(children[0], list):
             # Only one level of flattening, just to match the old API
             children = children[0]
+            # Do we care to map across all the children, making sure to
+            # flatten them too? Or should we just do the else case that
+            # keeps lists of lists of nodes?
         else:
+            # children came in as pure args, our primary case
             children = list(children)
     else:
         # Empty list of children
@@ -170,9 +175,10 @@ def create_component(tagName, allow_children=True):
         """A basic class for a virtual DOM Component"""
 
         def __init__(self, *children, **kwargs):
-            if not allow_children and children:
-                raise ValueError('<{tagName} /> cannot have children'.format(tagName=tagName))
             self.children = _flatten_children(*children, **kwargs)
+            if not allow_children and self.children:
+                raise ValueError('<{tagName} /> cannot have children'.format(
+                    tagName=tagName))
             self.attributes = kwargs
             self.tagName = tagName
             self._schema = VDOM_SCHEMA
