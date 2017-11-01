@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import _flatten_children, to_json, VDOM
+from ..core import _flatten_children, create_component, to_json, VDOM
 from ..helpers import div, p, img, h1, b
 from jsonschema import ValidationError, validate
 import pytest
@@ -101,4 +101,20 @@ def test_schema_validation():
     # make sure you can pass empty schema
     assert (
         VDOM([_valid_vdom_obj], schema = {}).json_contents == [_valid_vdom_obj]
+        )
+
+
+def test_component_allows_children():
+    nonvoid = create_component('nonvoid', allow_children=True)
+    test_component = nonvoid(
+        div()
+    )
+    assert test_component.children is not None
+
+
+def test_component_disallows_children():
+    void = create_component('void', allow_children=False)
+    with pytest.raises(ValueError, message='<void /> cannot have children'):
+        void(
+            div()
         )

@@ -156,7 +156,7 @@ def _flatten_children(*children, **kwargs):
     return children
 
 
-def create_component(tagName):
+def create_component(tagName, allow_children=True):
     """Create a component for an HTML Tag
 
     Examples:
@@ -170,6 +170,8 @@ def create_component(tagName):
         """A basic class for a virtual DOM Component"""
 
         def __init__(self, *children, **kwargs):
+            if not allow_children and children:
+                raise ValueError('<{tagName} /> cannot have children'.format(tagName=tagName))
             self.children = _flatten_children(*children, **kwargs)
             self.attributes = kwargs
             self.tagName = tagName
