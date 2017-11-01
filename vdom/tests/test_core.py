@@ -37,11 +37,15 @@ def test_flatten_children():
 def test_to_json():
     assert to_json({
         'tagName': 'h1',
-        'attributes': { 'data-test': True },
+        'attributes': {
+            'data-test': True
+        },
         'children': []
     }) == {
         'tagName': 'h1',
-        'attributes': { 'data-test': True},
+        'attributes': {
+            'data-test': True
+        },
         'children': []
     }
 
@@ -81,7 +85,8 @@ def test_to_json():
             ]
         }, {
             'tagName': 'img',
-            'children': None,
+            'children':
+            None,
             'attributes': {
                 'src':
                 'https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif'
@@ -90,31 +95,32 @@ def test_to_json():
         'attributes': {}
     }
 
-_valid_vdom_obj= {'tagName': 'h1', 'children': 'Hey', 'attributes': {}}
+
+_valid_vdom_obj = {'tagName': 'h1', 'children': 'Hey', 'attributes': {}}
+
 
 def test_schema_validation():
     with pytest.raises(ValidationError):
-        test_vdom = VDOM(
-            [_valid_vdom_obj],
-        )
+        test_vdom = VDOM([_valid_vdom_obj], )
 
     # make sure you can pass empty schema
-    assert (
-        VDOM([_valid_vdom_obj], schema = {}).json_contents == [_valid_vdom_obj]
-        )
+    assert (VDOM([_valid_vdom_obj],
+                 schema={}).json_contents == [_valid_vdom_obj])
 
 
 def test_component_allows_children():
     nonvoid = create_component('nonvoid', allow_children=True)
-    test_component = nonvoid(
-        div()
-    )
+    test_component = nonvoid(div())
     assert test_component.children is not None
 
 
 def test_component_disallows_children():
     void = create_component('void', allow_children=False)
     with pytest.raises(ValueError, message='<void /> cannot have children'):
-        void(
-            div()
-        )
+        void(div())
+
+
+def test_component_disallows_children_kwargs():
+    void = create_component('void', allow_children=False)
+    with pytest.raises(ValueError, message='<void /> cannot have children'):
+        void(children=div())
