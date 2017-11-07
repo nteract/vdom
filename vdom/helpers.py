@@ -96,6 +96,8 @@ meter = create_component('meter')
 output = create_component('output')
 progress = create_component('progress')
 input_ = create_component('input', allow_children=False)
+button = create_component('button')
+label = create_component('label')
 
 # Interactive elements
 details = create_component('details')
@@ -103,3 +105,5 @@ dialog = create_component('dialog')
 menu = create_component('menu')
 menuitem = create_component('menuitem')
 summary = create_component('summary')
+
+style = create_component('style')
