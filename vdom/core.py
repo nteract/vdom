@@ -14,7 +14,7 @@ import os
 import io
 
 _vdom_schema_file_path = os.path.join(
-    os.path.dirname(__file__), "schemas", "vdom_schema_v0.json")
+    os.path.dirname(__file__), "schemas", "vdom_schema_v1.json")
 with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"

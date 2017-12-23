@@ -4,8 +4,16 @@
 from ..core import _flatten_children, create_component, to_json, VDOM
 from ..helpers import div, p, img, h1, b
 from jsonschema import ValidationError, validate
+import os
+import io
+import json
 import pytest
 
+
+_vdom_schema_file_path = os.path.join(
+    os.path.dirname(__file__), "..", "schemas", "vdom_schema_v1.json")
+with io.open(_vdom_schema_file_path, "r") as f:
+    VDOM_SCHEMA = json.load(f)
 
 def test_flatten_children():
     # when the first argument is an array, interpret it as the primary argument
@@ -97,6 +105,7 @@ def test_to_json():
 
 
 _valid_vdom_obj = {'tagName': 'h1', 'children': 'Hey', 'attributes': {}}
+_invalid_vdom_obj = {'tagName': 'h1', 'children':[{'randomProperty': 'randomValue'}]}
 
 
 def test_schema_validation():
@@ -106,8 +115,15 @@ def test_schema_validation():
     # make sure you can pass empty schema
     assert (VDOM([_valid_vdom_obj],
                  schema={}).json_contents == [_valid_vdom_obj])
+  
+    # check that you can pass a valid schema
+    assert (VDOM(_valid_vdom_obj, schema=VDOM_SCHEMA))
 
+    # check that an invalid schema throws ValidationError
+    with pytest.raises(ValidationError):
+        test_vdom = VDOM([_invalid_vdom_obj], )    
 
+    
 def test_component_allows_children():
     nonvoid = create_component('nonvoid', allow_children=True)
     test_component = nonvoid(div())

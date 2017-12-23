@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "required": ["tagName", "children", "attributes"],
+    "$ref": "#/definitions/vdomEl",
+    "definitions": {
+      "vdomEl": {
+        "type": "object",
+        "required": ["tagName", "children", "attributes"],
+        "properties": {
+          "tagName": {
+            "type": "string" 
+          },
+          "children": {
+            "$ref": "#/definitions/vdomNode"
+          },
+          "attributes": {
+            "type": "object"   
+          },
+          "key": {
+            "oneOf": [{"type": "number"}, {"type": "string"}, {"type": "null"}]
+          }
+        }
+      },
+      "vdomNode": {
+        "oneOf": [
+          { "$ref": "#/definitions/vdomEl" },
+          {"type": "array", "items": {"$ref": "#/definitions/vdomNode"}},
+          {"type": "null"},
+          {"type": "string"}
+        ]
+      }  
+    }
+  }
