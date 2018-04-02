@@ -1,0 +1,2 @@
+# Install vdom in library mode
+pip install -e .
