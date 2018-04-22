@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import _flatten_children, create_component, to_json, VDOM
+from ..core import _flatten_children, create_component, create_element, to_json, VDOM
 from ..helpers import div, p, img, h1, b
 from jsonschema import ValidationError, validate
 import os
 import io
 import json
 import pytest
+import warnings
 
 
 _vdom_schema_file_path = os.path.join(
@@ -129,6 +130,12 @@ def test_component_allows_children():
     test_component = nonvoid(div())
     assert test_component.children is not None
 
+def test_create_element_deprecated():
+    import warnings
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        create_element('warnme')
+        assert len(w) == 1
 
 def test_component_disallows_children():
     void = create_component('void', allow_children=False)
