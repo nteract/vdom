@@ -9,6 +9,7 @@ that are renderable in jupyter frontends.
 
 from jsonschema import validate, Draft4Validator, ValidationError
 import json
+import warnings
 
 import os
 import io
@@ -110,8 +111,9 @@ class VDOM(object):
                 to_json(self._obj, schema=value)
             except ValidationError as e:
                 # Don't raise error, but give warning that it is no longer valid
-                print(_validate_err_template.format(value, e))
-                print("VDOM cannot submit a message until this is fixed")
+                warning_message = _validate_err_template.format(value, e)
+                warning_message += "\nVDOM cannot submit a message until this is fixed"
+                warnings.warn(warning_message)
         self._schema = value
 
     @staticmethod
@@ -229,7 +231,7 @@ def create_element(tagName):
 
     This should have been written more like React.createClass
     """
-    print("Warning: createElement is deprecated in favor of createComponent")
+    warnings.warn("Warning: createElement is deprecated in favor of createComponent")
     return create_component(tagName)
 
 
