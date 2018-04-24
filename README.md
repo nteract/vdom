@@ -6,8 +6,6 @@
 - Render the layout in **Jupyter** frontends (jupyterlab, nteract).
 - Serialize layout for rehydration in your web app.
 
-:warning: This library is a work in progress. :warning:
-
 ## Check out the power of VDOM!
 
 Start with Python code and run it:
