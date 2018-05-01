@@ -122,3 +122,7 @@ def test_immutable():
     comp = div("Hello")
     with pytest.raises(AttributeError):
         comp.children = "Nello"
+
+def test_invalid_children():
+    with pytest.raises(ValueError):
+        comp = div(5)

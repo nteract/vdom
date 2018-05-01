@@ -78,6 +78,10 @@ class VDOM(object):
         self.children = children if children else []
         self.key = key
 
+        # Validate that all children are VDOMs or strings
+        if not all([isinstance(c, VDOM) or isinstance(c, str) for c in children]):
+            raise ValueError('Children must be a list of VDOM objects or strings')
+
         # mark completion of object creation. Object is immutable from now.
         self._frozen = True
 
