@@ -14,6 +14,8 @@ import warnings
 import os
 import io
 
+from vdom.frozendict import FrozenDict
+
 _vdom_schema_file_path = os.path.join(
     os.path.dirname(__file__), "schemas", "vdom_schema_v1.json")
 with io.open(_vdom_schema_file_path, "r") as f:
@@ -74,7 +76,7 @@ class VDOM(object):
             children = vdom_obj.children
             key = vdom_obj.key
         self.tag_name = tag_name
-        self.attributes = attributes if attributes else {}
+        self.attributes = FrozenDict(attributes) if attributes else FrozenDict()
         self.children = tuple(children) if children else tuple()
         self.key = key
 

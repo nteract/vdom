@@ -130,6 +130,11 @@ def test_immutable_children():
     with pytest.raises(TypeError):
         comp.children[0] = h1("boo")
 
+def test_immutable_attributes():
+    comp = div(h1("hello"))
+    with pytest.raises(ValueError):
+        comp.attributes['class'] = 'something'
+
 def test_invalid_children():
     with pytest.raises(ValueError):
         comp = div(5)
