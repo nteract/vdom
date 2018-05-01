@@ -64,8 +64,6 @@ class VDOM(object):
     __slots__ = ['tag_name', 'attributes', 'children', 'key', '_frozen']
 
     def __init__(self, tag_name, attributes=None, children=None, key=None, schema=None):
-        if schema is not None:
-            warnings.warn('Passing schema param to VDOM constructor is deprecated')
         if isinstance(tag_name, dict) or isinstance(tag_name, list):
             # Backwards compatible interface
             warnings.warn('Passing dict to VDOM constructor is deprecated')
@@ -83,6 +81,9 @@ class VDOM(object):
         # mark completion of object creation. Object is immutable from now.
         self._frozen = True
 
+        if schema is not None:
+            self.validate(schema)
+
     def __setattr__(self, attr, value):
         """
         Make instances immutable after creation
@@ -90,6 +91,17 @@ class VDOM(object):
         if hasattr(self, '_frozen') and self._frozen:
             raise AttributeError("Cannot change attribute of immutable object")
         super(VDOM, self).__setattr__(attr, value)
+
+    def validate(self, schema):
+        """
+        Validate VDOM against given JSON Schema
+
+        Raises ValidationError if schema does not match
+        """
+        try:
+            validate(instance=self.to_dict(), schema=schema, cls=Draft4Validator)
+        except ValidationError as e:
+            raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
 
     def to_dict(self):
         vdom_dict = {
