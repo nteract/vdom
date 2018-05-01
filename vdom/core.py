@@ -89,7 +89,7 @@ class VDOM(object):
         """
         if hasattr(self, '_frozen') and self._frozen:
             raise AttributeError("Cannot change attribute of immutable object")
-        super().__setattr__(attr, value)
+        super(VDOM, self).__setattr__(attr, value)
 
     def to_dict(self):
         vdom_dict = {
