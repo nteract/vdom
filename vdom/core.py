@@ -8,7 +8,6 @@ that are renderable in jupyter frontends.
 """
 
 from jsonschema import validate, Draft4Validator, ValidationError
-from functools import partial
 import json
 import warnings
 
