@@ -126,7 +126,7 @@ class VDOM(object):
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
         return {
-            'application/vdom.v1+json': json.dumps(self.to_dict()),
+            'application/vdom.v1+json': self.to_dict(),
             'text/plain': '<{tagName} />'.format(tagName=self.tag_name)
         }
 
