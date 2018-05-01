@@ -120,5 +120,5 @@ def test_component_disallows_children_kwargs():
 
 def test_immutable():
     comp = div("Hello")
-    with pytest.raises(ValueError, message="Cannot change attribute children of immutable object"):
+    with pytest.raises(AttributeError):
         comp.children = "Nello"

@@ -88,7 +88,7 @@ class VDOM(object):
         Make instances immutable after creation
         """
         if hasattr(self, '_frozen') and self._frozen:
-            raise ValueError("Cannot change attribute children of immutable object")
+            raise AttributeError("Cannot change attribute of immutable object")
         super().__setattr__(attr, value)
 
     def to_dict(self):
