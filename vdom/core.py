@@ -156,15 +156,20 @@ def create_component(tag_name, allow_children=True):
     def _component(*children, **kwargs):
         if 'children' in kwargs:
             children = kwargs.pop('children')
+        else:
+            # Flatten children under specific circumstances
+            # This supports the use case of div([a, b, c])
+            # And allows users to skip the * operator
+            if len(children) == 1 and isinstance(children[0], list):
+                children = children[0]
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
         else:
             attributes = dict(**kwargs)
-        if tag_name == 'img':
-            print(children)
         if not allow_children and children:
             # We don't allow children, but some were passed in
             raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
+
         v = VDOM(tag_name, attributes, children)
         return v
     return _component
