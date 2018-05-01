@@ -117,3 +117,8 @@ def test_component_disallows_children_kwargs():
     void = create_component('void', allow_children=False)
     with pytest.raises(ValueError, message='<void /> cannot have children'):
         void(children=div())
+
+def test_immutable():
+    comp = div("Hello")
+    with pytest.raises(ValueError, message="Cannot change attribute children of immutable object"):
+        comp.children = "Nello"

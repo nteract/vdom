@@ -61,7 +61,7 @@ class VDOM(object):
     >>> h1('Hey')
     """
     # This class should only have these 4 attributes
-    __slots__ = ['tag_name', 'attributes', 'children', 'key']
+    __slots__ = ['tag_name', 'attributes', 'children', 'key', '_frozen']
 
     def __init__(self, tag_name, attributes=None, children=None, key=None, schema=None):
         if schema is not None:
@@ -79,6 +79,17 @@ class VDOM(object):
         self.attributes = attributes if attributes else {}
         self.children = children if children else []
         self.key = key
+
+        # mark completion of object creation. Object is immutable from now.
+        self._frozen = True
+
+    def __setattr__(self, attr, value):
+        """
+        Make instances immutable after creation
+        """
+        if hasattr(self, '_frozen') and self._frozen:
+            raise ValueError("Cannot change attribute children of immutable object")
+        super().__setattr__(attr, value)
 
     def to_dict(self):
         vdom_dict = {
