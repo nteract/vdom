@@ -119,9 +119,16 @@ def test_component_disallows_children_kwargs():
         void(children=div())
 
 def test_immutable():
-    comp = div("Hello")
     with pytest.raises(AttributeError):
+        comp = div("Hello")
         comp.children = "Nello"
+
+def test_immutable_children():
+    comp = div(h1("hello"))
+    with pytest.raises(AttributeError):
+        comp.children.append(h1("boo"))
+    with pytest.raises(TypeError):
+        comp.children[0] = h1("boo")
 
 def test_invalid_children():
     with pytest.raises(ValueError):

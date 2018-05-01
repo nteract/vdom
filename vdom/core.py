@@ -75,7 +75,7 @@ class VDOM(object):
             key = vdom_obj.key
         self.tag_name = tag_name
         self.attributes = attributes if attributes else {}
-        self.children = children if children else []
+        self.children = tuple(children) if children else tuple()
         self.key = key
 
         # Validate that all children are VDOMs or strings
@@ -161,10 +161,9 @@ def create_component(tag_name, allow_children=True):
             # This supports the use case of div([a, b, c])
             # And allows users to skip the * operator
             if len(children) == 1 and isinstance(children[0], list):
-                children = children[0]
-            else:
-                # Make sure children are a list, rather than a tuple
-                children = list(children)
+                # We want children to be tuples and not lists, so
+                # they can be immutable
+                children = tuple(children[0])
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
         else:
