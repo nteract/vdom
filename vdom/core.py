@@ -162,6 +162,9 @@ def create_component(tag_name, allow_children=True):
             # And allows users to skip the * operator
             if len(children) == 1 and isinstance(children[0], list):
                 children = children[0]
+            else:
+                # Make sure children are a list, rather than a tuple
+                children = list(children)
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
         else:
