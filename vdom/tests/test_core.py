@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import _flatten_children, create_component, create_element, to_json, VDOM
+from ..core import create_component, create_element, to_json, VDOM
 from ..helpers import div, p, img, h1, b
 from jsonschema import ValidationError, validate
 import os

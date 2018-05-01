@@ -118,37 +118,6 @@ class VDOM(object):
         )
 
 
-def _flatten_children(*children, **kwargs):
-    '''Flattens *args to allow children to be passed as an array or as
-    positional arguments.
-    >>> _flatten_children("a", "b", "c")
-    ["a", "b", "c"]
-    >>> _flatten_children(["a", "b"])
-    ["a", "b"]
-    >>> _flatten_children(children=["c", "d"])
-    ["c", "d"]
-    >>> _flatten_children()
-    []
-    '''
-    # children as keyword argument takes precedence
-    if 'children' in kwargs:
-        return kwargs['children']
-    # If children array is empty, might as well pass None (null in JSON)
-    if len(children) == 0:
-        return None
-    elif isinstance(children[0], list):
-        # Only one level of flattening, just to match the old API
-        return _flatten_children(children[0])
-        # Do we care to map across all the children, making sure to
-        # flatten them too? Or should we just do the else case that
-        # keeps lists of lists of nodes?
-    elif len(children) == 1:
-        # Flatten by default
-        return children[0]
-    else:
-        # children came in as pure args, our primary case
-        return list(children)
-
 def create_component(tag_name, allow_children=True):
     """
     Create a component for an HTML Tag
