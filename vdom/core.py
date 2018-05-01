@@ -8,6 +8,7 @@ that are renderable in jupyter frontends.
 """
 
 from jsonschema import validate, Draft4Validator, ValidationError
+from functools import partial
 import json
 import warnings
 
@@ -162,6 +163,32 @@ def _flatten_children(*children, **kwargs):
         children = []
     return children
 
+class Component():
+    """A basic class for a virtual DOM Component"""
+
+    def __init__(self, tagName, allow_children, *children, **kwargs):
+        self.children = _flatten_children(*children, **kwargs)
+        if not allow_children and self.children:
+            raise ValueError('<{tagName} /> cannot have children'.format(
+                tagName=tagName))
+        self.attributes = kwargs
+        self.tagName = tagName
+        self._schema = VDOM_SCHEMA
+
+    def _repr_mimebundle_(self, include, exclude, **kwargs):
+        return {
+            'application/vdom.v1+json': to_json(self, schema=self._schema),
+            'text/plain': '<{tagName} />'.format(tagName=tagName)
+        }
+
+    @property
+    def schema(self):
+        return self._schema
+
+    @schema.setter
+    def schema(self, value):
+        Draft4Validator.check_schema(value)
+        self._schema = value
 
 def create_component(tagName, allow_children=True):
     """Create a component for an HTML Tag
@@ -172,41 +199,7 @@ def create_component(tagName, allow_children=True):
         <marquee>woohoo</marquee>
 
     """
-
-    class Component():
-        """A basic class for a virtual DOM Component"""
-
-        def __init__(self, *children, **kwargs):
-            self.children = _flatten_children(*children, **kwargs)
-            if not allow_children and self.children:
-                raise ValueError('<{tagName} /> cannot have children'.format(
-                    tagName=tagName))
-            self.attributes = kwargs
-            self.tagName = tagName
-            self._schema = VDOM_SCHEMA
-
-        def _repr_mimebundle_(self, include, exclude, **kwargs):
-            return {
-                'application/vdom.v1+json': to_json(self, schema=self._schema),
-                'text/plain': '<{tagName} />'.format(tagName=tagName)
-            }
-
-        @property
-        def schema(self):
-            return self._schema
-
-        @schema.setter
-        def schema(self, value):
-            Draft4Validator.check_schema(value)
-            self._schema = value
-
-    Component.__doc__ = """A virtual DOM component for a {tagName} tag
-
-    >>> {tagName}()
-    <{tagName} />
-    """.format(tagName=tagName)
-
-    return Component
+    return partial(Component, tagName, allow_children)
 
 
 def create_element(tagName):
