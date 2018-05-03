@@ -13,6 +13,7 @@ import warnings
 
 import os
 import io
+import html
 
 from vdom.frozendict import FrozenDict
 
@@ -122,14 +123,41 @@ class VDOM(object):
     def to_json(self):
         return json.dumps(self.to_dict())
 
+    def to_html(self):
+        return self._repr_html_()
+
     def json_contents(self):
         warnings.warn('VDOM.json_contents method is deprecated, use to_json instead')
         return self.to_json()
 
+    def _repr_html_(self):
+        """
+        Return HTML representation of VDOM object.
+
+        HTML escaping is performed wherever necessary.
+        """
+        # Use StringIO to avoid a large number of memory allocations with string concat
+        with io.StringIO() as out:
+            out.write('<{tag}'.format(tag=html.escape(self.tag_name)))
+
+            for k, v in self.attributes.items():
+                out.write(' {key}="{value}"'.format(key=html.escape(k), value=html.escape(v)))
+            out.write('>')
+
+            for c in self.children:
+                if isinstance(c, str):
+                    out.write(html.escape(c))
+                else:
+                    out.write(c._repr_html_())
+
+            out.write('</{tag}>'.format(tag=html.escape(self.tag_name)))
+
+            return out.getvalue()
+
     def _repr_mimebundle_(self, include, exclude, **kwargs):
         return {
             'application/vdom.v1+json': self.to_dict(),
-            'text/plain': '<{tagName} />'.format(tagName=self.tag_name)
+            'text/plain': self.to_html()
         }
 
     @classmethod

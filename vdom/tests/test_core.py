@@ -17,6 +17,9 @@ with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 
 
+def test_to_html():
+    assert div(p("Hello world", title='something')).to_html() == '<div><p title="something">Hello world</p></div>'
+
 def test_to_json():
     assert to_json({
         'tagName': 'h1',
