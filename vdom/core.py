@@ -14,6 +14,8 @@ import warnings
 import os
 import io
 
+from vdom.frozendict import FrozenDict
+
 _vdom_schema_file_path = os.path.join(
     os.path.dirname(__file__), "schemas", "vdom_schema_v1.json")
 with io.open(_vdom_schema_file_path, "r") as f:
@@ -39,12 +41,8 @@ def to_json(el, schema=None):
             json_el['attributes'] = {}
         if 'children' not in el:
             json_el['children'] = []
-    elif (hasattr(el, 'tagName') and hasattr(el, 'attributes')):
-        json_el = {
-            'tagName': el.tagName,
-            'attributes': el.attributes,
-            'children': to_json(el.children)
-        }
+    elif isinstance(el, VDOM):
+        json_el = el.to_dict()
     else:
         json_el = el
 
@@ -56,157 +54,129 @@ def to_json(el, schema=None):
 
     return json_el
 
-
 class VDOM(object):
     """A basic virtual DOM class which allows you to write literal VDOM spec
 
-    >>> VDOM({ 'tagName': 'h1', 'children': 'Hey', 'attributes': {}})
-
-    It's probably better to use `vdom.h` or the helper functions:
-
-    >>> from vdom import h
-    >>> h('h1', 'Hey')
-    <h1 />
+    >>> VDOM(tag_name='h1', children='Hey', attributes: {}})
 
     >>> from vdom.helpers import h1
     >>> h1('Hey')
-
     """
-    _schema = VDOM_SCHEMA
-    _obj = None
+    # This class should only have these 4 attributes
+    __slots__ = ['tag_name', 'attributes', 'children', 'key', '_frozen']
 
-    def __init__(self, obj, schema=None):
-        # we need to assign self.schema first,
-        # because it is used to validate the object
+    def __init__(self, tag_name, attributes=None, children=None, key=None, schema=None):
+        if isinstance(tag_name, dict) or isinstance(tag_name, list):
+            # Backwards compatible interface
+            warnings.warn('Passing dict to VDOM constructor is deprecated')
+            value = tag_name
+            vdom_obj = VDOM.from_dict(value)
+            tag_name = vdom_obj.tag_name
+            attributes = vdom_obj.attributes
+            children = vdom_obj.children
+            key = vdom_obj.key
+        self.tag_name = tag_name
+        self.attributes = FrozenDict(attributes) if attributes else FrozenDict()
+        self.children = tuple(children) if children else tuple()
+        self.key = key
+
+        # Validate that all children are VDOMs or strings
+        if not all([isinstance(c, VDOM) or isinstance(c, str) for c in self.children]):
+            raise ValueError('Children must be a list of VDOM objects or strings')
+
+        # mark completion of object creation. Object is immutable from now.
+        self._frozen = True
+
         if schema is not None:
-            self.schema = schema
-        self.obj = obj
+            self.validate(schema)
+
+    def __setattr__(self, attr, value):
+        """
+        Make instances immutable after creation
+        """
+        if hasattr(self, '_frozen') and self._frozen:
+            raise AttributeError("Cannot change attribute of immutable object")
+        super(VDOM, self).__setattr__(attr, value)
+
+    def validate(self, schema):
+        """
+        Validate VDOM against given JSON Schema
+
+        Raises ValidationError if schema does not match
+        """
+        try:
+            validate(instance=self.to_dict(), schema=schema, cls=Draft4Validator)
+        except ValidationError as e:
+            raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
+
+    def to_dict(self):
+        vdom_dict = {
+            'tagName': self.tag_name,
+            'attributes': self.attributes
+        }
+        if self.key:
+            vdom_dict['key'] = self.key
+        vdom_dict['children'] = [c.to_dict() if isinstance(c, VDOM) else c for c in self.children]
+        return vdom_dict
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
+    def json_contents(self):
+        warnings.warn('VDOM.json_contents method is deprecated, use to_json instead')
+        return self.to_json()
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
-        return {'application/vdom.v1+json': self.json_contents}
+        return {
+            'application/vdom.v1+json': self.to_dict(),
+            'text/plain': '<{tagName} />'.format(tagName=self.tag_name)
+        }
 
-    @property
-    def json_contents(self):
-        return to_json(self._obj, schema=self._schema)
-
-    @property
-    def obj(self):
-        return self._obj
-
-    @obj.setter
-    def obj(self, value):
-        if to_json(value, schema=self._schema) is not None:
-            self._obj = value
-
-    @property
-    def schema(self):
-        return self._schema
-
-    @schema.setter
-    def schema(self, value):
-        Draft4Validator.check_schema(value)
-        # if object is present, check if schema works, if not give a log
-        if self._obj:
-            try:
-                to_json(self._obj, schema=value)
-            except ValidationError as e:
-                # Don't raise error, but give warning that it is no longer valid
-                warning_message = _validate_err_template.format(value, e)
-                warning_message += "\nVDOM cannot submit a message until this is fixed"
-                warnings.warn(warning_message)
-        self._schema = value
-
-    @staticmethod
-    def validate(value, schema=_schema):
-        to_json(value, schema=schema)
+    @classmethod
+    def from_dict(cls, value):
+        try:
+            validate(instance=value, schema=VDOM_SCHEMA, cls=Draft4Validator)
+        except ValidationError as e:
+            raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
+        return cls(
+            tag_name=value['tagName'],
+            attributes=value.get('attributes', {}),
+            children=[VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])],
+            key=value.get('key')
+        )
 
 
-def _flatten_children(*children, **kwargs):
-    '''Flattens *args to allow children to be passed as an array or as
-    positional arguments.
-
-    >>> _flatten_children("a", "b", "c")
-    ["a", "b", "c"]
-
-    >>> _flatten_children(["a", "b"])
-    ["a", "b"]
-
-    >>> _flatten_children(children=["c", "d"])
-    ["c", "d"]
-
-    >>> _flatten_children()
-    []
-
-    '''
-    # children as keyword argument takes precedence
-    if ('children' in kwargs):
-        children = kwargs['children']
-    elif children is not None:
-        # If children array is empty, might as well pass None (null in JSON)
-        if len(children) == 0:
-            children = None
-        elif len(children) == 1:
-            # Flatten by default
-            children = children[0]
-        elif isinstance(children[0], list):
-            # Only one level of flattening, just to match the old API
-            children = children[0]
-            # Do we care to map across all the children, making sure to
-            # flatten them too? Or should we just do the else case that
-            # keeps lists of lists of nodes?
-        else:
-            # children came in as pure args, our primary case
-            children = list(children)
-    else:
-        # Empty list of children
-        children = []
-    return children
-
-
-def create_component(tagName, allow_children=True):
-    """Create a component for an HTML Tag
+def create_component(tag_name, allow_children=True):
+    """
+    Create a component for an HTML Tag
 
     Examples:
         >>> marquee = create_component('marquee')
         >>> marquee('woohoo')
         <marquee>woohoo</marquee>
-
     """
+    def _component(*children, **kwargs):
+        if 'children' in kwargs:
+            children = kwargs.pop('children')
+        else:
+            # Flatten children under specific circumstances
+            # This supports the use case of div([a, b, c])
+            # And allows users to skip the * operator
+            if len(children) == 1 and isinstance(children[0], list):
+                # We want children to be tuples and not lists, so
+                # they can be immutable
+                children = tuple(children[0])
+        if 'attributes' in kwargs:
+            attributes = kwargs['attributes']
+        else:
+            attributes = dict(**kwargs)
+        if not allow_children and children:
+            # We don't allow children, but some were passed in
+            raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
 
-    class Component():
-        """A basic class for a virtual DOM Component"""
-
-        def __init__(self, *children, **kwargs):
-            self.children = _flatten_children(*children, **kwargs)
-            if not allow_children and self.children:
-                raise ValueError('<{tagName} /> cannot have children'.format(
-                    tagName=tagName))
-            self.attributes = kwargs
-            self.tagName = tagName
-            self._schema = VDOM_SCHEMA
-
-        def _repr_mimebundle_(self, include, exclude, **kwargs):
-            return {
-                'application/vdom.v1+json': to_json(self, schema=self._schema),
-                'text/plain': '<{tagName} />'.format(tagName=tagName)
-            }
-
-        @property
-        def schema(self):
-            return self._schema
-
-        @schema.setter
-        def schema(self, value):
-            Draft4Validator.check_schema(value)
-            self._schema = value
-
-    Component.__doc__ = """A virtual DOM component for a {tagName} tag
-
-    >>> {tagName}()
-    <{tagName} />
-    """.format(tagName=tagName)
-
-    return Component
+        v = VDOM(tag_name, attributes, children)
+        return v
+    return _component
 
 
 def create_element(tagName):
