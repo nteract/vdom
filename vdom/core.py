@@ -13,7 +13,13 @@ import warnings
 
 import os
 import io
-import html
+try:
+    from html import escape
+except ImportError:
+    # Python 2.x compatibility
+    import cgi
+    from functools import partial
+    escape = partial(cgi.escape, quote=True)
 
 from vdom.frozendict import FrozenDict
 
@@ -138,19 +144,20 @@ class VDOM(object):
         """
         # Use StringIO to avoid a large number of memory allocations with string concat
         with io.StringIO() as out:
-            out.write('<{tag}'.format(tag=html.escape(self.tag_name)))
+            out.write('<{tag}'.format(tag=escape(self.tag_name)))
 
             for k, v in self.attributes.items():
-                out.write(' {key}="{value}"'.format(key=html.escape(k), value=html.escape(v)))
+                # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
+                out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
             out.write('>')
 
             for c in self.children:
                 if isinstance(c, str):
-                    out.write(html.escape(c))
+                    out.write(escape(c))
                 else:
                     out.write(c._repr_html_())
 
-            out.write('</{tag}>'.format(tag=html.escape(self.tag_name)))
+            out.write('</{tag}>'.format(tag=escape(self.tag_name)))
 
             return out.getvalue()
 

@@ -20,6 +20,9 @@ with io.open(_vdom_schema_file_path, "r") as f:
 def test_to_html():
     assert div(p("Hello world", title='something')).to_html() == '<div><p title="something">Hello world</p></div>'
 
+def test_to_html_escaping():
+    assert div(p("Hello world<script>evil</script>", title='something')).to_html() == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
+
 def test_to_json():
     assert to_json({
         'tagName': 'h1',
