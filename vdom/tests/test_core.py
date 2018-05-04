@@ -20,6 +20,9 @@ with io.open(_vdom_schema_file_path, "r") as f:
 def test_to_html():
     assert div(p("Hello world", title='something')).to_html() == '<div><p title="something">Hello world</p></div>'
 
+def test_to_html_unicode():
+    assert div(p(u"Hello world", title=u'something')).to_html() == '<div><p title="something">Hello world</p></div>'
+
 def test_to_html_escaping():
     assert div(p("Hello world<script>evil</script>", title='something')).to_html() == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
 
@@ -92,15 +95,14 @@ def test_schema_validation():
     with pytest.raises(ValidationError):
         test_vdom = VDOM([_valid_vdom_obj], )
 
-  
     # check that you can pass a valid schema
     assert (VDOM(_valid_vdom_obj, schema=VDOM_SCHEMA))
 
     # check that an invalid schema throws ValidationError
     with pytest.raises(ValidationError):
-        test_vdom = VDOM([_invalid_vdom_obj], )    
+        test_vdom = VDOM([_invalid_vdom_obj], )
 
-    
+
 def test_component_allows_children():
     nonvoid = create_component('nonvoid', allow_children=True)
     test_component = nonvoid(div())

@@ -6,6 +6,7 @@ This module provides functions for creating elements and creating objects
 that are renderable in jupyter frontends.
 
 """
+from __future__ import unicode_literals
 
 from jsonschema import validate, Draft4Validator, ValidationError
 import json
@@ -13,9 +14,11 @@ import warnings
 
 import os
 import io
-try:
+from ipython_genutils.py3compat import PY3, safe_unicode, string_types
+
+if PY3:
     from html import escape
-except ImportError:
+else:
     # Python 2.x compatibility
     import cgi
     from functools import partial
@@ -88,7 +91,7 @@ class VDOM(object):
         self.key = key
 
         # Validate that all children are VDOMs or strings
-        if not all([isinstance(c, VDOM) or isinstance(c, str) for c in self.children]):
+        if not all([isinstance(c, (VDOM, string_types[:])) for c in self.children]):
             raise ValueError('Children must be a list of VDOM objects or strings')
 
         # mark completion of object creation. Object is immutable from now.
@@ -152,8 +155,8 @@ class VDOM(object):
             out.write('>')
 
             for c in self.children:
-                if isinstance(c, str):
-                    out.write(escape(c))
+                if isinstance(c, string_types):
+                    out.write(escape(safe_unicode(c)))
                 else:
                     out.write(c._repr_html_())
 
