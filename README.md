@@ -50,10 +50,10 @@ cd vdom
 pip install -e .
 ```
 
-## We welcome feedback.
+## Documentation
 
-Since this project and its API is still a work in progress, we would love to
-hear your thoughts on the API and suggestions for enhancements. Please take a look at the [VDOM spec](docs/spec.md) too.
+* [Design Patterns](./docs/design-patterns)
+* [Specification]()./docs/spec)
 
 ## Find out more about nteract
 
