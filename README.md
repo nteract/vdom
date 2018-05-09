@@ -53,7 +53,7 @@ pip install -e .
 ## Documentation
 
 * [Design Patterns](./docs/design-patterns)
-* [Specification]()./docs/spec)
+* [Specification](./docs/spec)
 
 ## Find out more about nteract
 
