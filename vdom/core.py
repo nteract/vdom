@@ -6,6 +6,7 @@ This module provides functions for creating elements and creating objects
 that are renderable in jupyter frontends.
 
 """
+from __future__ import unicode_literals
 
 from jsonschema import validate, Draft4Validator, ValidationError
 import json
@@ -13,6 +14,15 @@ import warnings
 
 import os
 import io
+from ipython_genutils.py3compat import PY3, safe_unicode, string_types
+
+if PY3:
+    from html import escape
+else:
+    # Python 2.x compatibility
+    import cgi
+    from functools import partial
+    escape = partial(cgi.escape, quote=True)
 
 from vdom.frozendict import FrozenDict
 
@@ -81,7 +91,7 @@ class VDOM(object):
         self.key = key
 
         # Validate that all children are VDOMs or strings
-        if not all([isinstance(c, VDOM) or isinstance(c, str) for c in self.children]):
+        if not all([isinstance(c, (VDOM, string_types[:])) for c in self.children]):
             raise ValueError('Children must be a list of VDOM objects or strings')
 
         # mark completion of object creation. Object is immutable from now.
@@ -122,14 +132,42 @@ class VDOM(object):
     def to_json(self):
         return json.dumps(self.to_dict())
 
+    def to_html(self):
+        return self._repr_html_()
+
     def json_contents(self):
         warnings.warn('VDOM.json_contents method is deprecated, use to_json instead')
         return self.to_json()
 
+    def _repr_html_(self):
+        """
+        Return HTML representation of VDOM object.
+
+        HTML escaping is performed wherever necessary.
+        """
+        # Use StringIO to avoid a large number of memory allocations with string concat
+        with io.StringIO() as out:
+            out.write('<{tag}'.format(tag=escape(self.tag_name)))
+
+            for k, v in self.attributes.items():
+                # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
+                out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
+            out.write('>')
+
+            for c in self.children:
+                if isinstance(c, string_types):
+                    out.write(escape(safe_unicode(c)))
+                else:
+                    out.write(c._repr_html_())
+
+            out.write('</{tag}>'.format(tag=escape(self.tag_name)))
+
+            return out.getvalue()
+
     def _repr_mimebundle_(self, include, exclude, **kwargs):
         return {
             'application/vdom.v1+json': self.to_dict(),
-            'text/plain': '<{tagName} />'.format(tagName=self.tag_name)
+            'text/plain': self.to_html()
         }
 
     @classmethod
