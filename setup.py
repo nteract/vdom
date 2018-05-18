@@ -7,11 +7,8 @@ from os.path import exists
 from setuptools import setup
 import versioneer
 
-ipython_req = 'ipython'
-
-import sys
-if sys.version_info[0] < 3 and 'bdist_wheel' not in sys.argv:
-    ipython_req = 'ipython<6'
+install_requires = ['ipython',
+                    'jsonschema']
 
 extras_require = {"tests": ["pytest"]}
 
@@ -31,5 +28,5 @@ setup(
     url='https://github.com/nteract/vdom',
     packages=['vdom'],
     package_data={'vdom': ['schemas/vdom_schema_v0.json']},
-    install_requires=[ipython_req, 'jsonschema'],
+    install_requires=install_requires,
     extras_require=extras_require)
