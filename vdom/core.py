@@ -194,9 +194,15 @@ class VDOM(object):
             validate(instance=value, schema=VDOM_SCHEMA, cls=Draft4Validator)
         except ValidationError as e:
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
+        attributes = value.get('attributes', {})
+        if 'style' in attributes:
+            style = attributes.pop('style')
+        else:
+            style = None
         return cls(
             tag_name=value['tagName'],
-            attributes=value.get('attributes', {}),
+            attributes=attributes,
+            style=style,
             children=[VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])],
             key=value.get('key')
         )
