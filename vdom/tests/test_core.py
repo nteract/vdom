@@ -26,6 +26,16 @@ def test_to_html_unicode():
 def test_to_html_escaping():
     assert div(p("Hello world<script>evil</script>", title='something')).to_html() == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
 
+def test_css():
+    assert div(
+        p('Hello world'),
+        style={
+            'background-color': 'pink',
+            'color': 'white'
+        },
+        title='Test'
+    ).to_html() == '<div style="background-color: pink; color: white" title="Test"><p>Hello world</p></div>'
+
 def test_to_json():
     assert to_json({
         'tagName': 'h1',

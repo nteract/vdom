@@ -72,16 +72,17 @@ class VDOM(object):
     >>> from vdom.helpers import h1
     >>> h1('Hey')
     """
-    # This class should only have these 4 attributes
-    __slots__ = ['tag_name', 'attributes', 'children', 'key', '_frozen']
+    # This class should only have these 5 attributes
+    __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', '_frozen']
 
-    def __init__(self, tag_name, attributes=None, children=None, key=None, schema=None):
+    def __init__(self, tag_name, attributes=None, style=None, children=None, key=None, schema=None):
         if isinstance(tag_name, dict) or isinstance(tag_name, list):
             # Backwards compatible interface
             warnings.warn('Passing dict to VDOM constructor is deprecated')
             value = tag_name
             vdom_obj = VDOM.from_dict(value)
             tag_name = vdom_obj.tag_name
+            style = vdom_obj.style
             attributes = vdom_obj.attributes
             children = vdom_obj.children
             key = vdom_obj.key
@@ -89,10 +90,18 @@ class VDOM(object):
         self.attributes = FrozenDict(attributes) if attributes else FrozenDict()
         self.children = tuple(children) if children else tuple()
         self.key = key
+        self.style = style if style else {}
 
         # Validate that all children are VDOMs or strings
         if not all([isinstance(c, (VDOM, string_types[:])) for c in self.children]):
             raise ValueError('Children must be a list of VDOM objects or strings')
+
+        # All style keys & values must be strings
+        if not all([
+            isinstance(k, string_types) and isinstance(v, string_types)
+            for k, v in self.style.items()
+        ]):
+            raise ValueError('Style must be a dict with string keys & values')
 
         # mark completion of object creation. Object is immutable from now.
         self._frozen = True
@@ -139,6 +148,12 @@ class VDOM(object):
         warnings.warn('VDOM.json_contents method is deprecated, use to_json instead')
         return self.to_json()
 
+    def _to_inline_css(self, style):
+        """
+        Return inline CSS from CSS key / values
+        """
+        return "; ".join(['{}: {}'.format(k, v) for k, v in style.items()])
+
     def _repr_html_(self):
         """
         Return HTML representation of VDOM object.
@@ -148,6 +163,9 @@ class VDOM(object):
         # Use StringIO to avoid a large number of memory allocations with string concat
         with io.StringIO() as out:
             out.write('<{tag}'.format(tag=escape(self.tag_name)))
+            if self.style:
+                # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
+                out.write(' style="{css}"'.format(css=escape(self._to_inline_css(self.style))))
 
             for k, v in self.attributes.items():
                 # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
@@ -204,6 +222,10 @@ def create_component(tag_name, allow_children=True):
                 # We want children to be tuples and not lists, so
                 # they can be immutable
                 children = tuple(children[0])
+        if 'style' in kwargs:
+            style = kwargs.pop('style')
+        else:
+            style = None
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
         else:
@@ -212,7 +234,7 @@ def create_component(tag_name, allow_children=True):
             # We don't allow children, but some were passed in
             raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
 
-        v = VDOM(tag_name, attributes, children)
+        v = VDOM(tag_name, attributes, style, children)
         return v
     return _component
 
