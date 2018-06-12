@@ -197,6 +197,8 @@ class VDOM(object):
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
         attributes = value.get('attributes', {})
         if 'style' in attributes:
+            # Make a copy of attributes, since we're gonna remove styles from it
+            attributes = attributes.copy()
             style = attributes.pop('style')
         else:
             style = None
