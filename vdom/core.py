@@ -23,7 +23,14 @@ else:
     # Python 2.x compatibility
     import cgi
     from functools import partial
-    escape = partial(cgi.escape, quote=True)
+    def escape(s):
+        """
+        Equivalent to html.escape
+        """
+        # cgi.escape does not escape single quotes, while html.escape does
+        # This should be equivalent
+        # FIXME: Do not write your own escaping code
+        return cgi.escape(s, quote=True).replace("'", "&#x27;")
 
 from vdom.frozendict import FrozenDict
 
