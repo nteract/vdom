@@ -94,14 +94,14 @@ class VDOM(object):
         self.style = FrozenDict(style) if style else FrozenDict()
 
         # Validate that all children are VDOMs or strings
-        if not all([isinstance(c, (VDOM, string_types[:])) for c in self.children]):
+        if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
             raise ValueError('Children must be a list of VDOM objects or strings')
 
         # All style keys & values must be strings
-        if not all([
+        if not all(
             isinstance(k, string_types) and isinstance(v, string_types)
             for k, v in self.style.items()
-        ]):
+        ):
             raise ValueError('Style must be a dict with string keys & values')
 
         # mark completion of object creation. Object is immutable from now.
