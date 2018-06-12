@@ -31,10 +31,12 @@ def test_css():
         p('Hello world'),
         style={
             'background-color': 'pink',
-            'color': 'white'
+            'color': 'white',
+            # Quotes should be entity escaped
+            'font-family': "'something something'"
         },
         title='Test'
-    ).to_html() == '<div style="background-color: pink; color: white" title="Test"><p>Hello world</p></div>'
+    ).to_html() == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
 
 def test_to_json():
     assert to_json({
