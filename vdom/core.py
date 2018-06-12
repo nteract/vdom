@@ -13,6 +13,7 @@ import json
 import warnings
 
 import os
+from collections import OrderedDict
 import io
 from ipython_genutils.py3compat import PY3, safe_unicode, string_types
 
@@ -90,7 +91,7 @@ class VDOM(object):
         self.attributes = FrozenDict(attributes) if attributes else FrozenDict()
         self.children = tuple(children) if children else tuple()
         self.key = key
-        self.style = style if style else {}
+        self.style = FrozenDict(style) if style else FrozenDict()
 
         # Validate that all children are VDOMs or strings
         if not all([isinstance(c, (VDOM, string_types[:])) for c in self.children]):
