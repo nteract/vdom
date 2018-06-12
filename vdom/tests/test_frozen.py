@@ -5,7 +5,7 @@ def test_ordering():
     """
     FrozenDict should preserve ordering
     """
-    f = FrozenDict(a=1, b=2)
+    f = FrozenDict([('a', 1), ('b', 2)])
     assert list(f.items()) == [('a', 1), ('b', 2)]
 
 def test_frozen():
