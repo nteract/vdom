@@ -88,10 +88,12 @@ class VDOM(object):
             children = vdom_obj.children
             key = vdom_obj.key
         self.tag_name = tag_name
-        self.attributes = FrozenDict(attributes) if attributes else FrozenDict()
+        # Sort attributes so our outputs are predictable
+        self.attributes = FrozenDict(sorted(attributes.items())) if attributes else FrozenDict()
         self.children = tuple(children) if children else tuple()
         self.key = key
-        self.style = FrozenDict(style) if style else FrozenDict()
+        # Sort attributes so our outputs are predictable
+        self.style = FrozenDict(sorted(style.items())) if style else FrozenDict()
 
         # Validate that all children are VDOMs or strings
         if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
