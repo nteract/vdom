@@ -23,22 +23,22 @@ class FrozenDict(OrderedDict):
             return func(*args, **kwargs)
 
     def __setitem__(self, *args, **kwargs):
-        return self.__readonly__(super().__setitem__, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).__setitem__, *args, **kwargs)
 
     def __delitem__(self, *args, **kwargs):
-        return self.__readonly__(super().__delitem__, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).__delitem__, *args, **kwargs)
 
     def pop(self, *args, **kwargs):
-        return self.__readonly__(super().pop, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).pop, *args, **kwargs)
 
     def popitem(self, *args, **kwargs):
-        return self.__readonly__(super().popitem, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).popitem, *args, **kwargs)
 
     def clear(self, *args, **kwargs):
-        return self.__readonly__(super().clear, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).clear, *args, **kwargs)
 
     def update(self, *args, **kwargs):
-        return self.__readonly__(super().update, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).update, *args, **kwargs)
 
     def setdefault(self, *args, **kwargs):
-        return self.__readonly__(super().setdefault, *args, **kwargs)
+        return self.__readonly__(super(FrozenDict, self).setdefault, *args, **kwargs)
