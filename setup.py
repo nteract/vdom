@@ -28,5 +28,7 @@ setup(
     url='https://github.com/nteract/vdom',
     packages=['vdom'],
     package_data={'vdom': ['schemas/vdom_schema_v0.json']},
+    include_package_data=True,
     install_requires=install_requires,
-    extras_require=extras_require)
+    extras_require=extras_require,
+)
