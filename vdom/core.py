@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 from jsonschema import validate, Draft4Validator, ValidationError
 import json
 import warnings
+import re
 
 import os
 from collections import OrderedDict
@@ -125,7 +126,7 @@ class VDOM(object):
         self.children = tuple(children) if children else tuple()
         self.key = key
         # Sort attributes so our outputs are predictable
-        self.style = FrozenDict(sorted(style.items())) if style else FrozenDict()
+        self.style = FrozenDict(sorted(s for s in convert_style_names(style.items()))) if style else FrozenDict()
 
         # Validate that all children are VDOMs or strings
         if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
@@ -143,6 +144,7 @@ class VDOM(object):
 
         if schema is not None:
             self.validate(schema)
+    
 
     def __setattr__(self, attr, value):
         """
@@ -257,7 +259,17 @@ class VDOM(object):
             key=value.get('key')
         )
 
+upper = re.compile(r'[A-Z]')
+def _upper_replace(matchobj):
+    return '-' + matchobj.group(0).lower()
 
+def convert_style_names(style):
+    """Converts style names from DOM to css styles.
+    """
+    for k, v in style:
+        yield re.sub(upper, _upper_replace, k), v
+            
+    
 def create_component(tag_name, allow_children=True):
     """
     Create a component for an HTML Tag
