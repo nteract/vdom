@@ -214,7 +214,10 @@ class VDOM(object):
 
             for k, v in self.attributes.items():
                 # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
-                out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
+                if isinstance(v, string_types):
+                    out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
+                if isinstance(v, bool) and v:
+                    out.write(' {key}'.format(key=escape(k)))
             out.write('>')
 
             for c in self.children:
