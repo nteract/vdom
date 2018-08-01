@@ -12,6 +12,7 @@ from jsonschema import validate, Draft4Validator, ValidationError
 import json
 import warnings
 import re
+import itertools
 
 import os
 from collections import OrderedDict
@@ -126,7 +127,7 @@ class VDOM(object):
         self.children = tuple(children) if children else tuple()
         self.key = key
         # Sort attributes so our outputs are predictable
-        self.style = FrozenDict(sorted(s for s in convert_style_names(style.items()))) if style else FrozenDict()
+        self.style = FrozenDict(sorted(style.items())) if style else FrozenDict()
 
         # Validate that all children are VDOMs or strings
         if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
@@ -199,7 +200,8 @@ class VDOM(object):
         """
         Return inline CSS from CSS key / values
         """
-        return "; ".join(['{}: {}'.format(k, v) for k, v in style.items()])
+        return "; ".join(['{}: {}'.format(k, v) 
+                          for k, v in convert_style_names(style.items())])
 
     def _repr_html_(self):
         """
