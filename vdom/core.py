@@ -46,7 +46,7 @@ _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
 def create_event_handler(event_name, handler):
     """Register a comm and return a serializable object with target name"""
-    
+
     target_name = '{hash}_{event_name}'.format(hash=str(int(time.time())), event_name=event_name)
 
     def handle_comm_opened(comm, msg):
@@ -56,13 +56,13 @@ def create_event_handler(event_name, handler):
             event = json.loads(data)
             return_value = handler(event)
             if return_value:
-                comm.send(return_value) 
+                comm.send(return_value)
 
         comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
-    
+
     # Register a new comm for this event handler
     get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
-    
+
     # Return a serialized object
     return {
         'target_name': target_name
@@ -145,7 +145,7 @@ class VDOM(object):
 
         if schema is not None:
             self.validate(schema)
-    
+
 
     def __setattr__(self, attr, value):
         """
@@ -175,11 +175,12 @@ class VDOM(object):
             else:
                 attributes[key] = value
         return attributes
-    
+
     def to_dict(self):
         vdom_dict = {
             'tagName': self.tag_name,
-            'attributes': self.encode_attributes()
+            'attributes': dict(itertools.chain(self.attributes.items(),
+                                               {"style": self.style}.items()))
         }
         if self.key:
             vdom_dict['key'] = self.key
@@ -200,7 +201,7 @@ class VDOM(object):
         """
         Return inline CSS from CSS key / values
         """
-        return "; ".join(['{}: {}'.format(k, v) 
+        return "; ".join(['{}: {}'.format(k, v)
                           for k, v in convert_style_names(style.items())])
 
     def _repr_html_(self):
@@ -270,8 +271,8 @@ def convert_style_names(style):
     """
     for k, v in style:
         yield re.sub(upper, _upper_replace, k), v
-            
-    
+
+
 def create_component(tag_name, allow_children=True):
     """
     Create a component for an HTML Tag
