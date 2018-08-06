@@ -159,3 +159,6 @@ def test_invalid_children():
     with pytest.raises(ValueError):
         comp = div(5)
         
+def test_convert_style_key():
+    assert convert_style_key("backgroundColor") == "background-color"
+    assert convert_style_key("preserveAspectRatio") == "preserve-aspect-ratio"
