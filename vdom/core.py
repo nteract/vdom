@@ -202,8 +202,7 @@ class VDOM(object):
         """
         Return inline CSS from CSS key / values
         """
-        return "; ".join(['{}: {}'.format(k, v)
-                          for k, v in convert_style_names(style.items())])
+        return "; ".join(['{}: {}'.format(convert_style_key(k), v) for k, v in style.items()])
 
     def _repr_html_(self):
         """
@@ -267,11 +266,13 @@ upper = re.compile(r'[A-Z]')
 def _upper_replace(matchobj):
     return '-' + matchobj.group(0).lower()
 
-def convert_style_names(style):
+def convert_style_key(key):
     """Converts style names from DOM to css styles.
+
+    >>> convert_style_key("backgroundColor")
+    "background-color"
     """
-    for k, v in style:
-        yield re.sub(upper, _upper_replace, k), v
+    return re.sub(upper, _upper_replace, key)
 
 
 def create_component(tag_name, allow_children=True):
