@@ -30,7 +30,7 @@ def test_css():
     assert div(
         p('Hello world'),
         style={
-            'background-color': 'pink',
+            'backgroundColor': 'pink',
             'color': 'white',
             # Quotes should be entity escaped
             'font-family': "'something something'"
@@ -158,3 +158,4 @@ def test_immutable_attributes():
 def test_invalid_children():
     with pytest.raises(ValueError):
         comp = div(5)
+        
