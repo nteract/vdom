@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import create_component, create_element, to_json, VDOM
+from ..core import create_component, create_element, to_json, VDOM, convert_style_key
 from ..helpers import div, p, img, h1, b
 from jsonschema import ValidationError, validate
 import os
@@ -27,16 +27,25 @@ def test_to_html_escaping():
     assert div(p("Hello world<script>evil</script>", title='something')).to_html() == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
 
 def test_css():
-    assert div(
-        p('Hello world'),
-        style={
-            'backgroundColor': 'pink',
-            'color': 'white',
-            # Quotes should be entity escaped
-            'font-family': "'something something'"
-        },
-        title='Test'
-    ).to_html() == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
+    el = div(
+             p('Hello world'),
+             style={
+                 'backgroundColor': 'pink',
+                 'color': 'white',
+                 # Quotes should be entity escaped
+                 'font-family': "'something something'"
+             },
+             title='Test'
+         )
+    assert el.to_html() == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
+    assert el.to_dict() == {'attributes': {'style': {'backgroundColor': 'pink',
+                                                     'color': 'white',
+                                                     'font-family': "'something something'"},
+                                           'title': 'Test'},
+                            'children': [{'attributes': {}, 
+                                          'children': ['Hello world'], 
+                                          'tagName': 'p'}],
+                            'tagName': 'div'}
 
 def test_to_json():
     assert to_json({
