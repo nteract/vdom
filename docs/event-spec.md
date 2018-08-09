@@ -1,7 +1,12 @@
 # VDOM Event Support
 
-This documents the event types (and respective event objects provided
-to event handlers) supported by vdom elements.
+This documents how vdom can be used to handle DOM events in Python and create
+interactive widgets similar to Jupyter widgets (ipywidgets).
+
+This allows vdom users to quickly and efficiently create UI for interacting
+with a kernel. For example, a user could filter large datasets on the kernel using an `onChange`
+event on an `input` element to minimize memory usage on the client or use
+buttons, sliders, and other UI controls to tweak algorithm parameters.
 
 ## Usage
 
@@ -20,6 +25,41 @@ my_display = display(counter(), display_id=True)
 
 my_display;
 ```
+
+## How it works
+
+### On the kernel
+
+For any vdom attribute whose value is callable (e.g. event handler function), vdom will:
+
+1. Register a new comm channel
+2. On incoming messages, call the event handler with the event object (dict) as
+   the single argument
+3. Replace the attribute value with an object with the following signature:
+
+```python
+{
+    'target_name': '{hash}_{event_name}'
+}
+```
+
+### On the client
+
+For any vdom attribute whose value is an object with a single
+key `target_name`, the vdom extension (transform-vdom for nteract,
+@jupyterlab/vdom-extension for JupyterLab) will:
+
+1. Connect to the comm channel of that
+target name value 
+2. Replace the attribute value with an anonymous function that will send a comm
+   message to that comm channel with the event object as the single argument
+
+As a result, like using React in Javascript, vdom elements can define event
+handlers as Python functions for DOM events such as `onClick` or `onChange`.
+When those DOM events occur on the client, a comm message containing the
+event object (as described in the [Reference section](#reference)) is sent and
+received on the kernel, and the Python function provided in the event handler
+attribute is called with the event object as its argument. 
 
 ## Supported Events
 
@@ -146,7 +186,7 @@ Event types:
 
 ```
 onClick
-onContetMenu
+onContextMenu
 onDoubleClick
 onDrag
 onDragEnd
