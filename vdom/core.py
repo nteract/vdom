@@ -15,7 +15,9 @@ import warnings
 import os
 from collections import OrderedDict
 import io
+import time
 from ipython_genutils.py3compat import PY3, safe_unicode, string_types
+from IPython import get_ipython
 
 if PY3:
     from html import escape
@@ -40,6 +42,29 @@ with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
+def create_event_handler(event_name, handler):
+    """Register a comm and return a serializable object with target name"""
+    
+    target_name = '{hash}_{event_name}'.format(hash=str(int(time.time())), event_name=event_name)
+
+    def handle_comm_opened(comm, msg):
+        @comm.on_msg
+        def _handle_msg(msg):
+            data = msg['content']['data']
+            event = json.loads(data)
+            return_value = handler(event)
+            if return_value:
+                comm.send(return_value) 
+
+        comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
+    
+    # Register a new comm for this event handler
+    get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
+    
+    # Return a serialized object
+    return {
+        'target_name': target_name
+    }
 
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
@@ -138,10 +163,20 @@ class VDOM(object):
         except ValidationError as e:
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
 
+    def encode_attributes(self):
+        """Handle callback functions in attributes"""
+        attributes = {}
+        for key, value in self.attributes.items():
+            if callable(value):
+                attributes[key] = create_event_handler(key, value)
+            else:
+                attributes[key] = value
+        return attributes
+    
     def to_dict(self):
         vdom_dict = {
             'tagName': self.tag_name,
-            'attributes': self.attributes
+            'attributes': self.encode_attributes()
         }
         if self.key:
             vdom_dict['key'] = self.key
