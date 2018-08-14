@@ -11,6 +11,8 @@ from __future__ import unicode_literals
 from jsonschema import validate, Draft4Validator, ValidationError
 import json
 import warnings
+import re
+import itertools
 
 import os
 from collections import OrderedDict
@@ -44,7 +46,7 @@ _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
 def create_event_handler(event_name, handler):
     """Register a comm and return a serializable object with target name"""
-    
+
     target_name = '{hash}_{event_name}'.format(hash=str(int(time.time())), event_name=event_name)
 
     def handle_comm_opened(comm, msg):
@@ -54,13 +56,13 @@ def create_event_handler(event_name, handler):
             event = json.loads(data)
             return_value = handler(event)
             if return_value:
-                comm.send(return_value) 
+                comm.send(return_value)
 
         comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
-    
+
     # Register a new comm for this event handler
     get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
-    
+
     # Return a serialized object
     return {
         'target_name': target_name
@@ -144,6 +146,7 @@ class VDOM(object):
         if schema is not None:
             self.validate(schema)
 
+
     def __setattr__(self, attr, value):
         """
         Make instances immutable after creation
@@ -172,11 +175,14 @@ class VDOM(object):
             else:
                 attributes[key] = value
         return attributes
-    
+
     def to_dict(self):
+        """Converts VDOM object to a dictionary that passes our schema
+        """
+        attr_tuple = (self.attributes.items(), {"style": dict(self.style)}.items()) if self.style else (self.attributes.items(),)
         vdom_dict = {
             'tagName': self.tag_name,
-            'attributes': self.encode_attributes()
+            'attributes': dict(itertools.chain.from_iterable(attr_tuple))
         }
         if self.key:
             vdom_dict['key'] = self.key
@@ -197,7 +203,7 @@ class VDOM(object):
         """
         Return inline CSS from CSS key / values
         """
-        return "; ".join(['{}: {}'.format(k, v) for k, v in style.items()])
+        return "; ".join(['{}: {}'.format(convert_style_key(k), v) for k, v in style.items()])
 
     def _repr_html_(self):
         """
@@ -214,7 +220,10 @@ class VDOM(object):
 
             for k, v in self.attributes.items():
                 # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
-                out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
+                if isinstance(v, string_types):
+                    out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
+                if isinstance(v, bool) and v:
+                    out.write(' {key}'.format(key=escape(k)))
             out.write('>')
 
             for c in self.children:
@@ -253,6 +262,18 @@ class VDOM(object):
             children=[VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])],
             key=value.get('key')
         )
+
+upper = re.compile(r'[A-Z]')
+def _upper_replace(matchobj):
+    return '-' + matchobj.group(0).lower()
+
+def convert_style_key(key):
+    """Converts style names from DOM to css styles.
+
+    >>> convert_style_key("backgroundColor")
+    "background-color"
+    """
+    return re.sub(upper, _upper_replace, key)
 
 
 def create_component(tag_name, allow_children=True):
