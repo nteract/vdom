@@ -33,17 +33,17 @@ def test_css():
                  'backgroundColor': 'pink',
                  'color': 'white',
                  # Quotes should be entity escaped
-                 'font-family': "'something something'"
+                 'fontFamily': "'something something'"
              },
              title='Test'
          )
     assert el.to_html() == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
     assert el.to_dict() == {'attributes': {'style': {'backgroundColor': 'pink',
                                                      'color': 'white',
-                                                     'font-family': "'something something'"},
+                                                     'fontFamily': "'something something'"},
                                            'title': 'Test'},
-                            'children': [{'attributes': {}, 
-                                          'children': ['Hello world'], 
+                            'children': [{'attributes': {},
+                                          'children': ['Hello world'],
                                           'tagName': 'p'}],
                             'tagName': 'div'}
 
@@ -167,7 +167,7 @@ def test_immutable_attributes():
 def test_invalid_children():
     with pytest.raises(ValueError):
         comp = div(5)
-        
+
 def test_convert_style_key():
     assert convert_style_key("backgroundColor") == "background-color"
     assert convert_style_key("preserveAspectRatio") == "preserve-aspect-ratio"
