@@ -1,3 +1,4 @@
 include versioneer.py
 include vdom/_version.py
 include vdom/schemas/vdom_schema_v0.json
+include vdom/schemas/vdom_schema_v1.json
