@@ -44,10 +44,10 @@ with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
-def create_event_handler(event_name, handler):
+def create_event_handler(event_type, handler):
     """Register a comm and return a serializable object with target name"""
 
-    target_name = '{hash}_{event_name}'.format(hash=str(int(time.time())), event_name=event_name)
+    target_name = '{hash}_{event_type}'.format(hash=hash(handler), event_type=event_type)
 
     def handle_comm_opened(comm, msg):
         @comm.on_msg
@@ -61,7 +61,8 @@ def create_event_handler(event_name, handler):
         comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
 
     # Register a new comm for this event handler
-    get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
+    if get_ipython():
+        get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
 
     # Return a serialized object
     return {

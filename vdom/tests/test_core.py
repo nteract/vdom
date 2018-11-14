@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ..core import create_component, create_element, to_json, VDOM, convert_style_key
-from ..helpers import div, p, img, h1, b
+from ..helpers import div, p, img, h1, b, button
 from jsonschema import ValidationError, validate
 import os
 import io
@@ -28,14 +28,14 @@ def test_to_html_escaping():
 
 def test_css():
     el = div(
-             p('Hello world'),
-             style={
-                 'backgroundColor': 'pink',
-                 'color': 'white',
-                 # Quotes should be entity escaped
-                 'fontFamily': "'something something'"
-             },
-             title='Test'
+            p('Hello world'),
+            style={
+                'backgroundColor': 'pink',
+                'color': 'white',
+                # Quotes should be entity escaped
+                'fontFamily': "'something something'"
+            },
+            title='Test'
          )
     assert el.to_html() == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
     assert el.to_dict() == {'attributes': {'style': {'backgroundColor': 'pink',
@@ -46,6 +46,22 @@ def test_css():
                                           'children': ['Hello world'],
                                           'tagName': 'p'}],
                             'tagName': 'div'}
+
+def test_event_handler():
+    def handle_click(event):
+        print(event)
+    
+    el = button(
+        'click me', 
+        onClick=handle_click
+    )
+
+    assert el.to_html() == '<button>click me</button>'
+    assert el.to_dict() == {'attributes': {'onClick': {
+                                'target_name': '{hash}_onClick'.format(hash=hash(handle_click))
+                            }},
+                            'children': ['click me'],
+                            'tagName': 'button'}
 
 def test_to_json():
     assert to_json({
