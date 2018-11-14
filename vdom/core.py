@@ -179,10 +179,12 @@ class VDOM(object):
     def to_dict(self):
         """Converts VDOM object to a dictionary that passes our schema
         """
-        attr_tuple = (self.attributes.items(), {"style": dict(self.style)}.items()) if self.style else (self.attributes.items(),)
+        attributes = self.encode_attributes()
+        if self.style:
+            attributes.update({"style": dict(self.style.items())})
         vdom_dict = {
             'tagName': self.tag_name,
-            'attributes': dict(itertools.chain.from_iterable(attr_tuple))
+            'attributes': attributes
         }
         if self.key:
             vdom_dict['key'] = self.key
