@@ -65,9 +65,7 @@ def create_event_handler(event_type, handler):
         get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
 
     # Return a serialized object
-    return {
-        'target_name': target_name
-    }
+    return target_name
 
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
