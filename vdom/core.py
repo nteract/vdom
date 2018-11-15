@@ -109,9 +109,9 @@ class VDOM(object):
     >>> h1('Hey')
     """
     # This class should only have these 5 attributes
-    __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', '_frozen']
+    __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', 'event_handlers', '_frozen']
 
-    def __init__(self, tag_name, attributes=None, style=None, children=None, key=None, schema=None):
+    def __init__(self, tag_name, attributes=None, style=None, children=None, key=None, event_handlers=None, schema=None):
         if isinstance(tag_name, dict) or isinstance(tag_name, list):
             # Backwards compatible interface
             warnings.warn('Passing dict to VDOM constructor is deprecated')
@@ -119,6 +119,7 @@ class VDOM(object):
             vdom_obj = VDOM.from_dict(value)
             tag_name = vdom_obj.tag_name
             style = vdom_obj.style
+            event_handlers = vdom_obj.event_handlers
             attributes = vdom_obj.attributes
             children = vdom_obj.children
             key = vdom_obj.key
@@ -129,6 +130,7 @@ class VDOM(object):
         self.key = key
         # Sort attributes so our outputs are predictable
         self.style = FrozenDict(sorted(style.items())) if style else FrozenDict()
+        self.event_handlers = FrozenDict(sorted(event_handlers.items())) if event_handlers else FrozenDict()
 
         # Validate that all children are VDOMs or strings
         if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
@@ -167,22 +169,14 @@ class VDOM(object):
         except ValidationError as e:
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
 
-    def encode_attributes(self):
-        """Handle callback functions in attributes"""
-        attributes = {}
-        for key, value in self.attributes.items():
-            if callable(value):
-                attributes[key] = create_event_handler(key, value)
-            else:
-                attributes[key] = value
-        return attributes
-
     def to_dict(self):
         """Converts VDOM object to a dictionary that passes our schema
         """
-        attributes = self.encode_attributes()
+        attributes = dict(self.attributes.items())
         if self.style:
             attributes.update({"style": dict(self.style.items())})
+        if self.event_handlers:
+            attributes.update(self.event_handlers)
         vdom_dict = {
             'tagName': self.tag_name,
             'attributes': attributes
@@ -252,16 +246,25 @@ class VDOM(object):
         except ValidationError as e:
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
         attributes = value.get('attributes', {})
+        style = None
+        event_handlers = None
         if 'style' in attributes:
             # Make a copy of attributes, since we're gonna remove styles from it
             attributes = attributes.copy()
             style = attributes.pop('style')
-        else:
-            style = None
+        for key, value in attributes.items():
+            if callable(value):
+                attributes = attributes.copy();
+                value = create_event_handler(key, attributes.pop(key))
+                if event_handlers == None:
+                    event_handlers = {key: value}
+                else:
+                    event_handlers.update({key: value})
         return cls(
             tag_name=value['tagName'],
             attributes=attributes,
             style=style,
+            event_handlers=event_handlers,
             children=[VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])],
             key=value.get('key')
         )
@@ -299,19 +302,26 @@ def create_component(tag_name, allow_children=True):
                 # We want children to be tuples and not lists, so
                 # they can be immutable
                 children = tuple(children[0])
+        style = None
+        event_handlers = None
+        attributes = dict(**kwargs)
         if 'style' in kwargs:
             style = kwargs.pop('style')
-        else:
-            style = None
         if 'attributes' in kwargs:
             attributes = kwargs['attributes']
-        else:
-            attributes = dict(**kwargs)
+        for key, value in attributes.items():
+            if callable(value):
+                attributes = attributes.copy();
+                value = create_event_handler(key, attributes.pop(key))
+                if event_handlers == None:
+                    event_handlers = {key: value}
+                else:
+                    event_handlers.update({key: value})
         if not allow_children and children:
             # We don't allow children, but some were passed in
             raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
 
-        v = VDOM(tag_name, attributes, style, children)
+        v = VDOM(tag_name, attributes, style, children, None, event_handlers)
         return v
     return _component
 
