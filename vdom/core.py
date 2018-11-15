@@ -173,12 +173,16 @@ class VDOM(object):
         attributes = dict(self.attributes.items())
         if self.style:
             attributes.update({"style": dict(self.style.items())})
-        if self.event_handlers:
-            attributes.update(self.event_handlers)
         vdom_dict = {
             'tagName': self.tag_name,
-            'attributes': attributes
+            'attributes': attributes,
         }
+        if self.event_handlers:
+            event_handlers = dict(self.event_handlers.items())
+            for key, value in event_handlers.items():
+                value = create_event_handler(key, value)
+                event_handlers[key] = value
+            vdom_dict['eventHandlers'] = event_handlers
         if self.key:
             vdom_dict['key'] = self.key
         vdom_dict['children'] = [c.to_dict() if isinstance(c, VDOM) else c for c in self.children]
@@ -253,11 +257,10 @@ class VDOM(object):
         for key, value in attributes.items():
             if callable(value):
                 attributes = attributes.copy();
-                value = create_event_handler(key, attributes.pop(key))
                 if event_handlers == None:
-                    event_handlers = {key: value}
+                    event_handlers = {key: attributes.pop(key)}
                 else:
-                    event_handlers.update({key: value})
+                    event_handlers[key] = attributes.pop(key)
         return cls(
             tag_name=value['tagName'],
             attributes=attributes,
@@ -310,11 +313,10 @@ def create_component(tag_name, allow_children=True):
         for key, value in attributes.items():
             if callable(value):
                 attributes = attributes.copy();
-                value = create_event_handler(key, attributes.pop(key))
                 if event_handlers == None:
-                    event_handlers = {key: value}
+                    event_handlers = {key: attributes.pop(key)}
                 else:
-                    event_handlers.update({key: value})
+                    event_handlers[key] = attributes.pop(key)
         if not allow_children and children:
             # We don't allow children, but some were passed in
             raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
