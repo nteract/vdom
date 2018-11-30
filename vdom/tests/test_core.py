@@ -57,9 +57,8 @@ def test_event_handler():
     )
 
     assert el.to_html() == '<button>click me</button>'
-    assert el.to_dict() == {'attributes': {'onClick': {
-                                'target_name': '{hash}_onClick'.format(hash=hash(handle_click))
-                            }},
+    assert el.to_dict() == {'attributes': {},
+                            'eventHandlers': {'onClick': '{hash}_onClick'.format(hash=hash(handle_click))},
                             'children': ['click me'],
                             'tagName': 'button'}
 

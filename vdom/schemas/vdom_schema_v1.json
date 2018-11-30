@@ -17,6 +17,9 @@
           "attributes": {
             "type": "object"   
           },
+          "eventHandlers": {
+            "type": "object"   
+          },
           "key": {
             "oneOf": [{"type": "number"}, {"type": "string"}, {"type": "null"}]
           }
