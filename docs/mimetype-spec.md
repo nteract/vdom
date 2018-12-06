@@ -1,6 +1,6 @@
 # VDOM Media Type
 
-This documents the mimetype `application/vdom.v1+json` as used in Jupyter and
+This documents the media type `application/vdom.v1+json` as used in Jupyter and
 nteract frontends.
 
 ## `VDOMElement`
