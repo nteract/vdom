@@ -52,8 +52,9 @@ pip install -e .
 
 ## Documentation
 
-* [Design Patterns](./docs/design-patterns.md)
-* [Specification](./docs/spec.md)
+- [Design Patterns](./docs/design-patterns.md)
+- [Specification - VDOM Media Type](./docs/mimetype-spec.md)
+- [Specification - VDOM Event Support](./docs/event-spec.md)
 
 ## Find out more about nteract
 
