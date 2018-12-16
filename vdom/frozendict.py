@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+
 class FrozenDict(OrderedDict):
     """
     Immutable ordered dictionary subclass
@@ -11,6 +12,7 @@ class FrozenDict(OrderedDict):
     Uses an OrderedDict as base, to preserve ordering when
     making outputs.
     """
+
     def __init__(self, *args, **kwargs):
         self.frozen = False
         super(FrozenDict, self).__init__(*args, **kwargs)

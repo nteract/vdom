@@ -27,6 +27,7 @@ else:
     # Python 2.x compatibility
     import cgi
     from functools import partial
+
     def escape(s):
         """
         Equivalent to html.escape
@@ -36,13 +37,14 @@ else:
         # FIXME: Do not write your own escaping code
         return cgi.escape(s, quote=True).replace("'", "&#x27;")
 
+
 from vdom.frozendict import FrozenDict
 
-_vdom_schema_file_path = os.path.join(
-    os.path.dirname(__file__), "schemas", "vdom_schema_v1.json")
+_vdom_schema_file_path = os.path.join(os.path.dirname(__file__), "schemas", "vdom_schema_v1.json")
 with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
+
 
 def create_event_handler(event_type, handler):
     """Register a comm and return a serializable object with target name"""
@@ -67,6 +69,7 @@ def create_event_handler(event_type, handler):
     # Return a serialized object
     return target_name
 
+
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
 
@@ -74,11 +77,11 @@ def to_json(el, schema=None):
     argument. If a schema is provided, this raises a ValidationError if JSON
     does not match the schema.
     """
-    if (type(el) is str):
+    if type(el) is str:
         json_el = el
-    elif (type(el) is list):
+    elif type(el) is list:
         json_el = list(map(to_json, el))
-    elif (type(el) is dict):
+    elif type(el) is dict:
         assert 'tagName' in el
         json_el = el.copy()
         if 'attributes' not in el:
@@ -98,6 +101,7 @@ def to_json(el, schema=None):
 
     return json_el
 
+
 class VDOM(object):
     """A basic virtual DOM class which allows you to write literal VDOM spec
 
@@ -106,10 +110,20 @@ class VDOM(object):
     >>> from vdom.helpers import h1
     >>> h1('Hey')
     """
+
     # This class should only have these 5 attributes
     __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', 'event_handlers', '_frozen']
 
-    def __init__(self, tag_name, attributes=None, style=None, children=None, key=None, event_handlers=None, schema=None):
+    def __init__(
+        self,
+        tag_name,
+        attributes=None,
+        style=None,
+        children=None,
+        key=None,
+        event_handlers=None,
+        schema=None,
+    ):
         if isinstance(tag_name, dict) or isinstance(tag_name, list):
             # Backwards compatible interface
             warnings.warn('Passing dict to VDOM constructor is deprecated')
@@ -128,7 +142,9 @@ class VDOM(object):
         self.key = key
         # Sort attributes so our outputs are predictable
         self.style = FrozenDict(sorted(style.items())) if style else FrozenDict()
-        self.event_handlers = FrozenDict(sorted(event_handlers.items())) if event_handlers else FrozenDict()
+        self.event_handlers = (
+            FrozenDict(sorted(event_handlers.items())) if event_handlers else FrozenDict()
+        )
 
         # Validate that all children are VDOMs or strings
         if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
@@ -146,7 +162,6 @@ class VDOM(object):
 
         if schema is not None:
             self.validate(schema)
-
 
     def __setattr__(self, attr, value):
         """
@@ -173,10 +188,7 @@ class VDOM(object):
         attributes = dict(self.attributes.items())
         if self.style:
             attributes.update({"style": dict(self.style.items())})
-        vdom_dict = {
-            'tagName': self.tag_name,
-            'attributes': attributes,
-        }
+        vdom_dict = {'tagName': self.tag_name, 'attributes': attributes}
         if self.event_handlers:
             event_handlers = dict(self.event_handlers.items())
             for key, value in event_handlers.items():
@@ -236,10 +248,7 @@ class VDOM(object):
             return out.getvalue()
 
     def _repr_mimebundle_(self, include, exclude, **kwargs):
-        return {
-            'application/vdom.v1+json': self.to_dict(),
-            'text/plain': self.to_html()
-        }
+        return {'application/vdom.v1+json': self.to_dict(), 'text/plain': self.to_html()}
 
     @classmethod
     def from_dict(cls, value):
@@ -256,7 +265,7 @@ class VDOM(object):
             style = attributes.pop('style')
         for key, value in attributes.items():
             if callable(value):
-                attributes = attributes.copy();
+                attributes = attributes.copy()
                 if event_handlers == None:
                     event_handlers = {key: attributes.pop(key)}
                 else:
@@ -266,13 +275,19 @@ class VDOM(object):
             attributes=attributes,
             style=style,
             event_handlers=event_handlers,
-            children=[VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])],
-            key=value.get('key')
+            children=[
+                VDOM.from_dict(c) if isinstance(c, dict) else c for c in value.get('children', [])
+            ],
+            key=value.get('key'),
         )
 
+
 upper = re.compile(r'[A-Z]')
+
+
 def _upper_replace(matchobj):
     return '-' + matchobj.group(0).lower()
+
 
 def convert_style_key(key):
     """Converts style names from DOM to css styles.
@@ -292,6 +307,7 @@ def create_component(tag_name, allow_children=True):
         >>> marquee('woohoo')
         <marquee>woohoo</marquee>
     """
+
     def _component(*children, **kwargs):
         if 'children' in kwargs:
             children = kwargs.pop('children')
@@ -312,7 +328,7 @@ def create_component(tag_name, allow_children=True):
             attributes = kwargs['attributes']
         for key, value in attributes.items():
             if callable(value):
-                attributes = attributes.copy();
+                attributes = attributes.copy()
                 if event_handlers == None:
                     event_handlers = {key: attributes.pop(key)}
                 else:
@@ -323,6 +339,7 @@ def create_component(tag_name, allow_children=True):
 
         v = VDOM(tag_name, attributes, style, children, None, event_handlers)
         return v
+
     return _component
 
 
