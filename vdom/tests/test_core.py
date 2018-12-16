@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from ..core import create_component, create_element, to_json, VDOM, convert_style_key
-from ..helpers import div, p, img, h1, b, button
-from jsonschema import ValidationError, validate
 import os
 import io
 import json
-import pytest
 import warnings
+
+from jsonschema import ValidationError, validate
+import pytest
+
+from ..core import create_component, create_element, to_json, VDOM, convert_style_key
+from ..helpers import div, p, img, h1, b, button
 
 
 _vdom_schema_file_path = os.path.join(
@@ -72,7 +73,10 @@ def test_event_handler():
     def handle_click(event):
         print(event)
 
-    el = button('click me', onClick=handle_click)
+    el = button(
+        'click me',
+        onClick=handle_click
+    )
 
     assert el.to_html() == '<button>click me</button>'
     assert el.to_dict() == {
@@ -142,6 +146,9 @@ def test_schema_validation():
     with pytest.raises(ValidationError):
         test_vdom = VDOM([_invalid_vdom_obj])
 
+    # check that an invalid schema with dict throws ValidationError
+    with pytest.raises(ValidationError):
+        test_vdom = VDOM([_invalid_vdom_obj], )
 
 def test_component_allows_children():
     nonvoid = create_component('nonvoid', allow_children=True)
