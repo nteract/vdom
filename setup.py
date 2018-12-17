@@ -7,13 +7,11 @@ from os.path import exists
 from setuptools import setup
 import versioneer
 
-install_requires = ['ipython',
-                    'jsonschema']
+install_requires = ['ipython', 'jsonschema']
 
 extras_require = {"tests": ["pytest"]}
 
-extras_require['all'] = list(
-    set([val for k, v in extras_require.items() for val in v]))
+extras_require['all'] = list(set([val for k, v in extras_require.items() for val in v]))
 
 setup(
     name='vdom',
