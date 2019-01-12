@@ -18,6 +18,7 @@ import os
 from collections import OrderedDict
 import io
 import time
+from uuid import uuid4
 from ipython_genutils.py3compat import PY3, safe_unicode, string_types
 from IPython import get_ipython
 
@@ -45,33 +46,33 @@ with io.open(_vdom_schema_file_path, "r") as f:
     VDOM_SCHEMA = json.load(f)
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
+target_name = 'vdom'
+event_handler_map = dict()
 
-def create_event_handler(event_type, handler):
-    """Register a comm and return a serializable object with target name"""
 
-    target_name = '{hash}_{event_type}'.format(hash=hash(handler), event_type=event_type)
-
-    def handle_comm_opened(comm, msg):
-        @comm.on_msg
-        def _handle_msg(msg):
-            data = msg['content']['data']
-            event = json.loads(data)
+def handle_comm_opened(comm, msg):
+    @comm.on_msg
+    def _handle_msg(msg):
+        data = msg['content']['data']
+        event = json.loads(data)
+        handler = event_handler_map[event['handler_id']]
+        if data and handler:
             return_value = handler(event)
             if return_value:
                 comm.send(return_value)
 
-        comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
+    comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
 
-    # Register a new comm for this event handler
-    if get_ipython():
-        get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
 
-    # Return a serialized object
-    return target_name
+# Register a new comm for this event handler
+if get_ipython():
+    get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
+
 
 
 def to_json(el, schema=None):
-    """Convert an element to VDOM JSON
+    """
+    Convert an element to VDOM JSON
 
     If you wish to validate the JSON, pass in a schema via the schema keyword
     argument. If a schema is provided, this raises a ValidationError if JSON
@@ -103,15 +104,15 @@ def to_json(el, schema=None):
 
 
 class VDOM(object):
-    """A basic virtual DOM class which allows you to write literal VDOM spec
+    """
+    A basic virtual DOM class which allows you to write literal VDOM spec
 
     >>> VDOM(tag_name='h1', children='Hey', attributes: {}})
 
     >>> from vdom.helpers import h1
     >>> h1('Hey')
     """
-
-    # This class should only have these 5 attributes
+    # This class should only have these 7 attributes
     __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', 'event_handlers', '_frozen']
 
     def __init__(
@@ -191,9 +192,6 @@ class VDOM(object):
         vdom_dict = {'tagName': self.tag_name, 'attributes': attributes}
         if self.event_handlers:
             event_handlers = dict(self.event_handlers.items())
-            for key, value in event_handlers.items():
-                value = create_event_handler(key, value)
-                event_handlers[key] = value
             vdom_dict['eventHandlers'] = event_handlers
         if self.key:
             vdom_dict['key'] = self.key
@@ -266,10 +264,13 @@ class VDOM(object):
         for key, value in attributes.items():
             if callable(value):
                 attributes = attributes.copy()
+                attributes.pop(key)
+                handler_id = str(uuid4())
+                event_handler_map[handler_id] = value
                 if event_handlers == None:
-                    event_handlers = {key: attributes.pop(key)}
+                    event_handlers = {key: handler_id}
                 else:
-                    event_handlers[key] = attributes.pop(key)
+                    event_handlers[key] = handler_id
         return cls(
             tag_name=value['tagName'],
             attributes=attributes,
@@ -290,7 +291,8 @@ def _upper_replace(matchobj):
 
 
 def convert_style_key(key):
-    """Converts style names from DOM to css styles.
+    """
+    Converts style names from DOM to css styles.
 
     >>> convert_style_key("backgroundColor")
     "background-color"
@@ -329,10 +331,13 @@ def create_component(tag_name, allow_children=True):
         for key, value in attributes.items():
             if callable(value):
                 attributes = attributes.copy()
+                attributes.pop(key)
+                handler_id = str(uuid4())
+                event_handler_map[handler_id] = value
                 if event_handlers == None:
-                    event_handlers = {key: attributes.pop(key)}
+                    event_handlers = {key: handler_id}
                 else:
-                    event_handlers[key] = attributes.pop(key)
+                    event_handlers[key] = handler_id
         if not allow_children and children:
             # We don't allow children, but some were passed in
             raise ValueError('<{tag_name} /> cannot have children'.format(tag_name=tag_name))
@@ -344,7 +349,8 @@ def create_component(tag_name, allow_children=True):
 
 
 def create_element(tagName):
-    """Takes an HTML tag and creates a VDOM Component
+    """
+    Takes an HTML tag and creates a VDOM Component
 
     WARNING: This call is deprecated, as the name is the same as
     React.createElement while having an entirely different meaning.
@@ -370,14 +376,14 @@ def create_element(tagName):
 
 
 def h(tagName, *children, **kwargs):
-    """Takes an HTML Tag, children (string, array, or another element), and
+    """
+    Takes an HTML Tag, children (string, array, or another element), and
     attributes
 
     Examples:
 
       >>> h('div', [h('p', 'hey')])
       <div><p>hey</p></div>
-
     """
     attrs = {}
     if 'attrs' in kwargs:
