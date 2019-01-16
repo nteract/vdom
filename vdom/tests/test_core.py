@@ -74,13 +74,13 @@ def test_event_handler():
 
     el = button('click me', onClick=handle_click)
 
+    button_dict = el.to_dict()
+
     assert el.to_html() == '<button>click me</button>'
-    assert el.to_dict() == {
-        'attributes': {},
-        'eventHandlers': {'onClick': '{hash}_onClick'.format(hash=hash(handle_click))},
-        'children': ['click me'],
-        'tagName': 'button',
-    }
+    assert button_dict['attributes'] == {}
+    assert 'onClick' in button_dict['eventHandlers']
+    assert button_dict['children'] == ['click me']
+    assert button_dict['tagName'] == 'button'
 
 
 def test_to_json():
