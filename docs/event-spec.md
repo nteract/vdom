@@ -174,9 +174,7 @@ onSubmit
 
 ```javascript
 {
-  target: {
-    value: string
-  }
+  value: string
 }
 ```
 
