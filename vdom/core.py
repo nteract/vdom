@@ -247,7 +247,7 @@ class VDOM(object):
 
             return out.getvalue()
 
-    def _repr_mimebundle_(self, include, exclude, **kwargs):
+    def _repr_mimebundle_(self, include=None, exclude=None, **kwargs):
         return {'application/vdom.v1+json': self.to_dict(), 'text/plain': self.to_html()}
 
     @classmethod
