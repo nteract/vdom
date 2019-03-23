@@ -127,6 +127,45 @@ def test_to_json():
     }
 
 
+def test_VDOM_from_dict():
+    assert (
+        VDOM.from_dict(
+            {
+                'tagName': 'div',
+                'children': [
+                    {
+                        'tagName': 'h1',
+                        'children': ['Our Incredibly Declarative Example'],
+                        'attributes': {},
+                    },
+                    {
+                        'tagName': 'p',
+                        'attributes': {},
+                        'children': [
+                            'Can you believe we wrote this ',
+                            {'tagName': 'b', 'children': ['in Python'], 'attributes': {}},
+                            '?',
+                        ],
+                    },
+                    {
+                        'tagName': 'img',
+                        'children': [],
+                        'attributes': {
+                            'src': 'https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif'
+                        },
+                    },
+                ],
+                'attributes': {},
+            }
+        ).to_json()
+        == div(
+            h1('Our Incredibly Declarative Example'),
+            p('Can you believe we wrote this ', b('in Python'), '?'),
+            img(src="https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif"),
+        ).to_json()
+    )
+
+
 _valid_vdom_obj = {'tagName': 'h1', 'children': 'Hey', 'attributes': {}}
 _invalid_vdom_obj = {'tagName': 'h1', 'children': [{'randomProperty': 'randomValue'}]}
 
