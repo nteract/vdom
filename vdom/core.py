@@ -263,8 +263,8 @@ class VDOM(object):
             # Make a copy of attributes, since we're gonna remove styles from it
             attributes = attributes.copy()
             style = attributes.pop('style')
-        for key, value in attributes.items():
-            if callable(value):
+        for key, val in attributes.items():
+            if callable(val):
                 attributes = attributes.copy()
                 if event_handlers == None:
                     event_handlers = {key: attributes.pop(key)}
