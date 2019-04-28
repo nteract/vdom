@@ -96,6 +96,8 @@ For this section, you'll need `ggplot` and `matplotlib` packages installed. We'l
 ```python
 import matplotlib.pyplot as plt
 import io, base64, urllib
+from ggplot import mpg
+from vdom.helpers import div, span, p, h1, img
 
 def fancy_hist(value, data=mpg, title="Plot", bins=12, style=None):
     if(style is None):
@@ -121,14 +123,13 @@ def fancy_hist(value, data=mpg, title="Plot", bins=12, style=None):
 
 
 ```python
-from ggplot import mpg
 fancy_hist('cty', data=mpg, title="City MPG")
 ```
 
 <div style="display: inline-block">
   <h1>City MPG</h1>
   <p>12 bins</p>
-  <img src="" />
+  <img src="https://user-images.githubusercontent.com/1857993/56857882-2b79d300-6938-11e9-8a5a-a7ad31e62ab1.png">
 </div>
 
 
@@ -141,14 +142,6 @@ div(
 ```
 
 <div>
-<div style="display: inline-block">
-  <h1>Highway MPG</h1>
-  <p>12 bins</p>
-  <img src="" />
-</div>
-<div style="display: inline-block">
-  <h1>City MPG</h1>
-  <p>12 bins</p>
-  <img src="" />
-</div>
+<div style="display: inline-block;"><h1>Highway MPG</h1><p>12 bins</p><img src="https://user-images.githubusercontent.com/1857993/56857868-fff6e880-6937-11e9-9cdf-5a2e95ae5bed.png"></div>
+<div style="display: inline-block;"><h1>City MPG</h1><p>12 bins</p><img src="https://user-images.githubusercontent.com/1857993/56857850-dc33a280-6937-11e9-913d-15baf48aaca3.png"></div>
 </div>
