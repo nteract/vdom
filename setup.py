@@ -23,6 +23,7 @@ setup(
     license='BSD',
     keywords="vdom, html",
     long_description=(open('README.md').read() if exists('README.md') else ''),
+    long_description_content_type='text/markdown',
     url='https://github.com/nteract/vdom',
     packages=['vdom'],
     package_data={'vdom': ['schemas/vdom_schema_v0.json']},
