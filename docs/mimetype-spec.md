@@ -44,6 +44,10 @@ to other new elements.
 
 The literal attributes to passthrough to the element.
 
+### `eventHandlers`
+
+An object containing the events registered on the element. For more information on events, read the [VDOM events spec](./event-spec.md).
+
 #### `style`
 
 The `style` attribute is expected to be an object with `camelCased` properties, matching with the
