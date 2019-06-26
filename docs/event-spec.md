@@ -3,34 +3,45 @@
 This documents how vdom can be used to handle DOM events in Python and create
 interactive widgets similar to Jupyter widgets (ipywidgets).
 
-This allows vdom users to quickly and efficiently create UI for interacting
-with a kernel. For example, a user could filter large datasets on the kernel using an `onChange`
-event on an `input` element to minimize memory usage on the client or use
-buttons, sliders, and other UI controls to tweak algorithm parameters.
+This allows vdom users to quickly and efficiently create UI for interacting with
+a kernel. For example, a user could filter large datasets on the kernel using an
+`onChange` event on an `input` element to minimize memory usage on the client or
+use buttons, sliders, and other UI controls to tweak algorithm parameters.
 
 ## Usage
 
 ```py
+from vdom import button
+from ipython.display import display
+
+# Create a variable to store counter state
 count = 0
 
+# Define an click handler
 def on_click(event):
     global count
     count += 1
-    my_display.update(counter())
-    
+    # Use ipython's `update_display` feature to update the counter's output/display
+    counter_display.update(counter())
+
+# Create a function that returns the counter vdom object
+# We will use this to render the counter initially and update it when `count` changes
 def counter():
     return button(str(count), onClick=on_click, style={'width': 100, 'height': 40})
 
-my_display = display(counter(), display_id=True)
+# Create a display handle that we can update in the click handler
+counter_display = display(counter(), display_id=True)
 
-my_display;
+# Display the counter
+counter_display;
 ```
 
 ## How it works
 
 ### On the kernel
 
-For any vdom attribute whose value is callable (e.g. event handler function), vdom will:
+For any vdom attribute whose value is callable (e.g. event handler function),
+vdom will:
 
 1. Register a new comm channel
 2. On incoming messages, call the event handler with the event object (dict) as
@@ -39,27 +50,29 @@ For any vdom attribute whose value is callable (e.g. event handler function), vd
 
 ```python
 {
-    'target_name': '{hash}_{event_name}'
+    'event_type': '{hash}_{target_name}'
 }
 ```
 
+4. Move the attribute from the `attributes` property of the vdom object to the
+   `event_handlers` property
+
 ### On the client
 
-For any vdom attribute whose value is an object with a single
-key `target_name`, the vdom extension (transform-vdom for nteract,
-@jupyterlab/vdom-extension for JupyterLab) will:
+For any event handlers in the vdom object, the
+[transform-vdom](https://github.com/nteract/nteract/tree/master/packages/transform-vdom)
+will:
 
-1. Connect to the comm channel of that
-target name value 
+1. Connect to the comm channel of that target name value
 2. Replace the attribute value with an anonymous function that will send a comm
    message to that comm channel with the event object as the single argument
 
 As a result, like using React in Javascript, vdom elements can define event
-handlers as Python functions for DOM events such as `onClick` or `onChange`.
-When those DOM events occur on the client, a comm message containing the
-event object (as described in the [Reference section](#reference)) is sent and
-received on the kernel, and the Python function provided in the event handler
-attribute is called with the event object as its argument. 
+handlers as Python functions for DOM events such as `click`, `change`, `scroll`,
+etc. When those DOM events occur on the client, a comm message containing the
+event object (as described in the [Reference section](#reference)) is sent to
+the kernel, and the Python function is called with the event object as its
+argument.
 
 ## Supported Events
 
@@ -427,4 +440,3 @@ Event object:
 ```javascript
 {}
 ```
-
