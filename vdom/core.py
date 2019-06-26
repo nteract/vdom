@@ -111,7 +111,7 @@ class VDOM(object):
     >>> h1('Hey')
     """
 
-    # This class should only have these 5 attributes
+    # This class should only have these 7 attributes
     __slots__ = ['tag_name', 'attributes', 'style', 'children', 'key', 'event_handlers', '_frozen']
 
     def __init__(
