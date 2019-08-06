@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import create_component, create_element, to_json, VDOM, convert_style_key
+from ..core import create_component, create_element, to_json, VDOM, convert_style_key, eventHandler
 from ..helpers import div, p, img, h1, b, button
 from jsonschema import ValidationError, validate
 import os
@@ -68,7 +68,7 @@ def test_css():
     }
 
 
-def test_event_handler():
+def test_event_handler_normal_function():
     def handle_click(event):
         print(event)
 
@@ -77,7 +77,41 @@ def test_event_handler():
     assert el.to_html() == '<button>click me</button>'
     assert el.to_dict() == {
         'attributes': {},
-        'eventHandlers': {'onClick': '{hash}_onClick'.format(hash=hash(handle_click))},
+        'eventHandlers': {
+            'onClick': {
+                'hash': hash(handle_click),
+                'stopPropagation': False,
+                'preventDefault': False,
+            },
+        },
+        'children': ['click me'],
+        'tagName': 'button',
+    }
+
+
+def test_event_handler_decorator():
+
+    @eventHandler(stopPropagation=True, preventDefault=True)
+    def handle_click(event):
+        pass
+
+    assert handle_click.serialize() == {
+        "hash": hash(handle_click._handler),
+        "preventDefault": True,
+        "stopPropagation": True,
+    }
+
+    el = button('click me', onClick=handle_click)
+
+    assert el.to_dict() == {
+        'attributes': {},
+        'eventHandlers': {
+            'onClick': {
+                'hash': hash(handle_click),
+                'stopPropagation': True,
+                'preventDefault': True,
+            },
+        },
         'children': ['click me'],
         'tagName': 'button',
     }
@@ -199,13 +233,13 @@ def test_create_element_deprecated():
 
 def test_component_disallows_children():
     void = create_component('void', allow_children=False)
-    with pytest.raises(ValueError, message='<void /> cannot have children'):
+    with pytest.raises(ValueError, match='<void /> cannot have children'):
         void(div())
 
 
 def test_component_disallows_children_kwargs():
     void = create_component('void', allow_children=False)
-    with pytest.raises(ValueError, message='<void /> cannot have children'):
+    with pytest.raises(ValueError, match='<void /> cannot have children'):
         void(children=div())
 
 

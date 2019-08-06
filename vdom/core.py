@@ -46,30 +46,6 @@ with io.open(_vdom_schema_file_path, "r") as f:
 _validate_err_template = "Your object didn't match the schema: {}. \n {}"
 
 
-def create_event_handler(event_type, handler):
-    """Register a comm and return a serializable object with target name"""
-
-    target_name = '{hash}_{event_type}'.format(hash=hash(handler), event_type=event_type)
-
-    def handle_comm_opened(comm, msg):
-        @comm.on_msg
-        def _handle_msg(msg):
-            data = msg['content']['data']
-            event = json.loads(data)
-            return_value = handler(event)
-            if return_value:
-                comm.send(return_value)
-
-        comm.send('Comm target "{target_name}" registered by vdom'.format(target_name=target_name))
-
-    # Register a new comm for this event handler
-    if get_ipython():
-        get_ipython().kernel.comm_manager.register_target(target_name, handle_comm_opened)
-
-    # Return a serialized object
-    return target_name
-
-
 def to_json(el, schema=None):
     """Convert an element to VDOM JSON
 
@@ -100,6 +76,69 @@ def to_json(el, schema=None):
             raise ValidationError(_validate_err_template.format(schema, e))
 
     return json_el
+
+
+def eventHandler(handler=None, preventDefault=False, stopPropagation=False):
+    """Create an event handler with special attributes
+
+    Typically when defining event handlers you can simply pass them to a VDOM Component,
+    however you can't prevent the event's default behaviors or stop its propagation up
+    through the DOM this way.
+
+    Parameters:
+        preventDefault: stop the event's default behavior
+        stopPropagation: halt the event's propagation up the DOM
+
+    Examples:
+        >>> @eventHandler(preventDefault=True, stopPropagation=True)
+        ... def on_hover(event):
+                pass
+        >>> drag_drop_spot = VDOM("div", event_handler={"onDragOver": hover})
+    """
+
+    def setup(handler):
+        return EventHandler(handler, preventDefault, stopPropagation)
+
+    if handler is not None:
+        return setup(handler)
+    else:
+        return setup
+
+
+class EventHandler(object):
+
+    def __init__(self, handler, prevent_default=False, stop_propagation=False):
+        self._handler = handler
+        self._prevent_default = prevent_default
+        self._stop_propagation = stop_propagation
+        # Register a new comm for this event handler
+        if get_ipython():
+            comm_manager = get_ipython().kernel.comm_manager
+            comm_manager.register_target(hash(self), self._on_comm_opened)
+
+    def serialize(self):
+        return {
+            "hash": hash(self),
+            "preventDefault": self._prevent_default,
+            "stopPropagation": self._stop_propagation,
+        }
+
+    def __call__(self, event):
+        return self._handler(event)
+
+    def __hash__(self):
+        return hash(self._handler)
+
+    def _on_comm_opened(self, comm, msg):
+        comm.on_msg(self._on_comm_msg)
+        comm.send('Comm target "{hash}" registered by vdom'.format(hash=hash(self)))
+
+    def _on_comm_msg(self, msg):
+        data = msg['content']['data']
+        event = json.loads(data)
+        return_value = self(event)
+        if return_value:
+            comm.send(return_value)
 
 
 class VDOM(object):
@@ -191,9 +230,10 @@ class VDOM(object):
         vdom_dict = {'tagName': self.tag_name, 'attributes': attributes}
         if self.event_handlers:
             event_handlers = dict(self.event_handlers.items())
-            for key, value in event_handlers.items():
-                value = create_event_handler(key, value)
-                event_handlers[key] = value
+            for key, handler in event_handlers.items():
+                if not isinstance(handler, EventHandler):
+                    handler = EventHandler(handler)
+                event_handlers[key] = handler.serialize()
             vdom_dict['eventHandlers'] = event_handlers
         if self.key:
             vdom_dict['key'] = self.key

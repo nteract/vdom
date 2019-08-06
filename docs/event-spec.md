@@ -50,7 +50,11 @@ vdom will:
 
 ```python
 {
-    'event_type': '{hash}_{target_name}'
+    '{eventName}': {
+        'hash': string,
+        'stopPropagation': boolean,
+        'preventDefault': boolean
+    }
 }
 ```
 
