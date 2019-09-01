@@ -10,6 +10,10 @@ use buttons, sliders, and other UI controls to tweak algorithm parameters.
 
 ## Usage
 
+To add event handlers to your VDOM all you need to do is define an attribute whose value
+is callable. In the example below we show how you can create a simple button that responds
+to click events:
+
 ```py
 from vdom import button
 from ipython.display import display
@@ -17,7 +21,7 @@ from ipython.display import display
 # Create a variable to store counter state
 count = 0
 
-# Define an click handler
+# Define an "on-click" handler
 def on_click(event):
     global count
     count += 1
@@ -35,6 +39,39 @@ counter_display = display(counter(), display_id=True)
 # Display the counter
 counter_display;
 ```
+
+### Advanced Event Behavior
+
+In some use cases it's neccssary to tinker with the behavior of events after they occur.
+For example, you might want to stop an ancor element from jumping to its `href` when
+clicked or you might want to prevent an event from bubbling up to a parent handler. Both
+of these goals can be achieved by using an `eventHandler` decorator. In the following
+example we've registered an "on-click" handler to an ancor, and to an outer div. If the
+`inner_on_click` handler **didn't** `preventDefault` and `stopPropogation`, upon clicking
+the ancor, the page would jump to the top as the `href` indicates and we would see a
+printout for both the inner and outer click handlers. However, the page will not jump to
+the top because `preventDefault=True`, and only the inner click hander will respond to
+the event because `stopPropogation=True`:
+
+```py
+import vdom
+from ipython.display import display
+
+def outer_on_click(event):
+    print("outer")
+
+@vdom.eventHandler(preventDefault=True, stopPropogation=True)
+def inner_on_click(event):
+    print("inner")
+
+model = vdom.div(
+    vdom.a("click this link", href-"#", onClick=inner_on_click)
+    onClick=outer_on_click,
+)
+
+display(model, display_id=True)
+```
+
 
 ## How it works
 
