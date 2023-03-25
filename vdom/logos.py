@@ -1,4 +1,4 @@
-from .svg import svg, polygon, g, path
+from .svg import g, path, polygon, svg
 
 
 def nteract(size=400):

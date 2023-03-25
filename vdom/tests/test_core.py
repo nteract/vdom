@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..core import create_component, create_element, to_json, VDOM, convert_style_key, eventHandler
-from ..helpers import div, p, img, h1, b, button
-from jsonschema import ValidationError, validate
-import os
 import io
 import json
-import pytest
-import warnings
+import os
 
+import pytest
+from jsonschema import ValidationError
+
+from ..core import (
+    VDOM,
+    convert_style_key,
+    create_component,
+    create_element,
+    eventHandler,
+    to_json,
+)
+from ..helpers import b, button, div, h1, img, p
 
 _vdom_schema_file_path = os.path.join(
     os.path.dirname(__file__), "..", "schemas", "vdom_schema_v1.json"
@@ -19,23 +26,19 @@ with io.open(_vdom_schema_file_path, "r") as f:
 
 
 def test_to_html():
-    assert (
-        div(p("Hello world", title='something')).to_html()
-        == '<div><p title="something">Hello world</p></div>'
-    )
+    html = div(p("Hello world", title='something')).to_html()
+    assert html == '<div><p title="something">Hello world</p></div>'
 
 
 def test_to_html_unicode():
-    assert (
-        div(p(u"Hello world", title=u'something')).to_html()
-        == '<div><p title="something">Hello world</p></div>'
-    )
+    html = div(p(u"Hello world", title=u'something')).to_html()
+    assert html == '<div><p title="something">Hello world</p></div>'
 
 
 def test_to_html_escaping():
+    html = div(p("Hello world<script>evil</script>", title='something')).to_html()
     assert (
-        div(p("Hello world<script>evil</script>", title='something')).to_html()
-        == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
+        html == '<div><p title="something">Hello world&lt;script&gt;evil&lt;/script&gt;</p></div>'
     )
 
 
@@ -50,10 +53,9 @@ def test_css():
         },
         title='Test',
     )
-    assert (
-        el.to_html()
-        == '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
-    )
+    html = el.to_html()
+    expected = '<div style="background-color: pink; color: white; font-family: &#x27;something something&#x27;" title="Test"><p>Hello world</p></div>'
+    assert html == expected
     assert el.to_dict() == {
         'attributes': {
             'style': {
@@ -90,7 +92,6 @@ def test_event_handler_normal_function():
 
 
 def test_event_handler_decorator():
-
     @eventHandler(stopPropagation=True, preventDefault=True)
     def handle_click(event):
         pass
@@ -162,37 +163,37 @@ def test_to_json():
 
 
 def test_VDOM_from_dict():
-    assert (
-        VDOM.from_dict(
-            {
-                'tagName': 'div',
-                'children': [
-                    {
-                        'tagName': 'h1',
-                        'children': ['Our Incredibly Declarative Example'],
-                        'attributes': {},
+    json = VDOM.from_dict(
+        {
+            'tagName': 'div',
+            'children': [
+                {
+                    'tagName': 'h1',
+                    'children': ['Our Incredibly Declarative Example'],
+                    'attributes': {},
+                },
+                {
+                    'tagName': 'p',
+                    'attributes': {},
+                    'children': [
+                        'Can you believe we wrote this ',
+                        {'tagName': 'b', 'children': ['in Python'], 'attributes': {}},
+                        '?',
+                    ],
+                },
+                {
+                    'tagName': 'img',
+                    'children': [],
+                    'attributes': {
+                        'src': 'https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif'
                     },
-                    {
-                        'tagName': 'p',
-                        'attributes': {},
-                        'children': [
-                            'Can you believe we wrote this ',
-                            {'tagName': 'b', 'children': ['in Python'], 'attributes': {}},
-                            '?',
-                        ],
-                    },
-                    {
-                        'tagName': 'img',
-                        'children': [],
-                        'attributes': {
-                            'src': 'https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif'
-                        },
-                    },
-                ],
-                'attributes': {},
-            }
-        ).to_json()
-        == div(
+                },
+            ],
+            'attributes': {},
+        }
+    ).to_json()
+    assert json == (
+        div(
             h1('Our Incredibly Declarative Example'),
             p('Can you believe we wrote this ', b('in Python'), '?'),
             img(src="https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif"),
@@ -206,14 +207,14 @@ _invalid_vdom_obj = {'tagName': 'h1', 'children': [{'randomProperty': 'randomVal
 
 def test_schema_validation():
     with pytest.raises(ValidationError):
-        test_vdom = VDOM([_valid_vdom_obj])
+        VDOM([_valid_vdom_obj])
 
     # check that you can pass a valid schema
     assert VDOM(_valid_vdom_obj, schema=VDOM_SCHEMA)
 
     # check that an invalid schema throws ValidationError
     with pytest.raises(ValidationError):
-        test_vdom = VDOM([_invalid_vdom_obj])
+        VDOM([_invalid_vdom_obj])
 
 
 def test_component_allows_children():
@@ -265,7 +266,7 @@ def test_immutable_attributes():
 
 def test_invalid_children():
     with pytest.raises(ValueError):
-        comp = div(5)
+        div(5)
 
 
 def test_convert_style_key():
