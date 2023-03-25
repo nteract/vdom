@@ -8,20 +8,15 @@ that are renderable in jupyter frontends.
 """
 from __future__ import unicode_literals
 
-from jsonschema import validate, Draft4Validator, ValidationError
-import json
-import warnings
-import re
-import itertools
-
-import os
-from collections import OrderedDict
 import io
-import time
-from IPython import get_ipython
-
+import json
+import os
+import re
+import warnings
 from html import escape
 
+from IPython import get_ipython
+from jsonschema import Draft4Validator, ValidationError, validate
 
 from vdom.frozendict import FrozenDict
 
@@ -95,6 +90,8 @@ class EventHandler(object):
         self._handler = handler
         self._prevent_default = prevent_default
         self._stop_propagation = stop_propagation
+
+        self.comm = None
         # Register a new comm for this event handler
         if get_ipython():
             comm_manager = get_ipython().kernel.comm_manager
@@ -114,6 +111,7 @@ class EventHandler(object):
         return hash(self._handler)
 
     def _on_comm_opened(self, comm, msg):
+        self.comm = comm
         comm.on_msg(self._on_comm_msg)
         comm.send('Comm target "{hash}" registered by vdom'.format(hash=hash(self)))
 
@@ -122,7 +120,7 @@ class EventHandler(object):
         event = json.loads(data)
         return_value = self(event)
         if return_value:
-            comm.send(return_value)
+            self.comm.send(return_value)
 
 
 class VDOM(object):
@@ -170,12 +168,12 @@ class VDOM(object):
         )
 
         # Validate that all children are VDOMs or strings
-        if not all(isinstance(c, (VDOM, string_types[:])) for c in self.children):
+        if not all(isinstance(c, (VDOM, str, bytes)) for c in self.children):
             raise ValueError('Children must be a list of VDOM objects or strings')
 
         # All style keys & values must be strings
         if not all(
-            isinstance(k, string_types) and isinstance(v, string_types)
+            isinstance(k, (str, bytes)) and isinstance(v, (str, bytes))
             for k, v in self.style.items()
         ):
             raise ValueError('Style must be a dict with string keys & values')
@@ -262,7 +260,7 @@ class VDOM(object):
 
             for c in self.children:
                 if isinstance(c, (str, bytes)):
-                    out.write(escape(safe_unicode(c)))
+                    out.write(escape(str(c)))
                 else:
                     out.write(c._repr_html_())
 
@@ -289,7 +287,7 @@ class VDOM(object):
         for key, val in attributes.items():
             if callable(val):
                 attributes = attributes.copy()
-                if event_handlers == None:
+                if event_handlers is None:
                     event_handlers = {key: attributes.pop(key)}
                 else:
                     event_handlers[key] = attributes.pop(key)
@@ -352,7 +350,7 @@ def create_component(tag_name, allow_children=True):
         for key, value in attributes.items():
             if callable(value):
                 attributes = attributes.copy()
-                if event_handlers == None:
+                if event_handlers is None:
                     event_handlers = {key: attributes.pop(key)}
                 else:
                     event_handlers[key] = attributes.pop(key)

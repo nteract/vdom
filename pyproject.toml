@@ -27,3 +27,32 @@ exclude = '''
 )/
 '''
 skip-string-normalization = true
+
+[tool.poetry]
+name = "vdom"
+version = "0.1.0"
+description = ""
+authors = ["Kyle Kelley <rgbkrk@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ipython = "^8.11.0"
+jsonschema = "^4.17.3"
+
+[tool.poetry.group.dev.dependencies]
+types-jsonschema = "^4.17.0.6"
+pytest = "^7.2.2"
+mypy = "^1.1.1"
+flake8-docstrings = "^1.7.0"
+black = "^23.1.0"
+isort = "^5.12.0"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
+nox = "^2022.11.21"
+nox-poetry = "^1.0.2"
+pytest-mock = "^3.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,5 +1,6 @@
-from vdom.frozendict import FrozenDict
 import pytest
+
+from vdom.frozendict import FrozenDict
 
 
 def test_ordering():
