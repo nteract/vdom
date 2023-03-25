@@ -30,7 +30,7 @@ skip-string-normalization = true
 
 [tool.poetry]
 name = "vdom"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Kyle Kelley <rgbkrk@gmail.com>"]
 readme = "README.md"
