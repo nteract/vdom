@@ -18,24 +18,9 @@ import os
 from collections import OrderedDict
 import io
 import time
-from ipython_genutils.py3compat import PY3, safe_unicode, string_types
 from IPython import get_ipython
 
-if PY3:
-    from html import escape
-else:
-    # Python 2.x compatibility
-    import cgi
-    from functools import partial
-
-    def escape(s):
-        """
-        Equivalent to html.escape
-        """
-        # cgi.escape does not escape single quotes, while html.escape does
-        # This should be equivalent
-        # FIXME: Do not write your own escaping code
-        return cgi.escape(s, quote=True).replace("'", "&#x27;")
+from html import escape
 
 
 from vdom.frozendict import FrozenDict
@@ -106,7 +91,6 @@ def eventHandler(handler=None, preventDefault=False, stopPropagation=False):
 
 
 class EventHandler(object):
-
     def __init__(self, handler, prevent_default=False, stop_propagation=False):
         self._handler = handler
         self._prevent_default = prevent_default
@@ -222,8 +206,7 @@ class VDOM(object):
             raise ValidationError(_validate_err_template.format(VDOM_SCHEMA, e))
 
     def to_dict(self):
-        """Converts VDOM object to a dictionary that passes our schema
-        """
+        """Converts VDOM object to a dictionary that passes our schema"""
         attributes = dict(self.attributes.items())
         if self.style:
             attributes.update({"style": dict(self.style.items())})
@@ -271,14 +254,14 @@ class VDOM(object):
 
             for k, v in self.attributes.items():
                 # Important values are in double quotes - cgi.escape only escapes double quotes, not single quotes!
-                if isinstance(v, string_types):
+                if isinstance(v, (str, bytes)):
                     out.write(' {key}="{value}"'.format(key=escape(k), value=escape(v)))
                 if isinstance(v, bool) and v:
                     out.write(' {key}'.format(key=escape(k)))
             out.write('>')
 
             for c in self.children:
-                if isinstance(c, string_types):
+                if isinstance(c, (str, bytes)):
                     out.write(escape(safe_unicode(c)))
                 else:
                     out.write(c._repr_html_())
